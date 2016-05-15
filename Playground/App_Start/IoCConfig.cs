@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNet.SignalR;
+using Microsoft.Data.Edm;
 using Microsoft.Practices.Unity;
 using Playground.Hubs;
 using Playground.Models;
+using Playground.Services;
 using System;
 using System.Collections.Generic;
 using System.Web.Http;
@@ -24,6 +26,8 @@ namespace Playground
         {
             this.RegisterType<PlaygroundContext>();
             this.RegisterType<IHubContext<IUpdater>, InjectedHub<UpdateHub, IUpdater>>();
+            this.RegisterType<UpdateService>();
+            this.RegisterInstance( ODataConfig.Model.Value );
         }
     }
 
