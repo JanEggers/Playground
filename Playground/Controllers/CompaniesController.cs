@@ -3,15 +3,21 @@ using System.Collections.Generic;
 using System.Web.Http;
 using System.Web.Http.OData;
 
+using Playground.Hubs;
+using Microsoft.AspNet.SignalR.Hubs;
+using Microsoft.AspNet.SignalR;
+
 namespace Playground.Controllers
 {
     public class CompaniesController : ODataController  
     {
         private PlaygroundContext m_ctx;
+        private IHubContext<IUpdater> m_updater;
 
-        public CompaniesController(PlaygroundContext ctx )
+        public CompaniesController(PlaygroundContext ctx, IHubContext<IUpdater> updater)
         {
             m_ctx = ctx;
+            m_updater = updater;
         }
         
         public IEnumerable<Company> Get()
@@ -52,6 +58,8 @@ namespace Playground.Controllers
 
             patch.Patch(item);
             m_ctx.SaveChanges();
+
+            m_updater.Clients.All.Update("lala", new Dictionary<string, object>());
 
             return Updated(item);
         }

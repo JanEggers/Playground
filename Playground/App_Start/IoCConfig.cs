@@ -1,4 +1,6 @@
-﻿using Microsoft.Practices.Unity;
+﻿using Microsoft.AspNet.SignalR;
+using Microsoft.Practices.Unity;
+using Playground.Hubs;
 using Playground.Models;
 using System;
 using System.Collections.Generic;
@@ -21,10 +23,11 @@ namespace Playground
         public PlaygroundContainer()
         {
             this.RegisterType<PlaygroundContext>();
+            this.RegisterType<IHubContext<IUpdater>, InjectedHub<UpdateHub, IUpdater>>();
         }
     }
 
-    public class UnityResolver : IDependencyResolver
+    public class UnityResolver : System.Web.Http.Dependencies.IDependencyResolver
     {
         protected IUnityContainer container;
 
