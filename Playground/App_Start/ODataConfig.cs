@@ -12,6 +12,7 @@ namespace Playground
     {
         public static void Register(HttpConfiguration config)
         {
+            AuditConfiguration.Default.LoadRelationships = true;
             AuditConfiguration.Default.DefaultAuditable = true;
             AuditConfiguration.Default.IncludeRelationships = true;
 

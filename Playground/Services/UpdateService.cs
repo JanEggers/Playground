@@ -49,13 +49,17 @@ namespace Playground.Services
                 foreach (var property in entity.Properties)
                 {
                     msg = property.Name + " changed from " + property.Original + " to " + property.Current;
+                    if (property.IsRelationship) {
+                        msg = "Relation " + msg;
+                    }
+                    
                     Trace.WriteLine(msg);
 
                     changes[property.Name] = property.Current;
                 }
 
                 var type = m_model.FindType(entity.EntityType.FullName);
-                var container = m_model.FindEntityContainer(m_context.GetType().Name);
+                var container = GetContainer();
 
                 var serializationContext = new ODataSerializerContext();
                 serializationContext.Model = m_model;
@@ -70,6 +74,23 @@ namespace Playground.Services
 
                 m_updater.Clients.All.Update(idLink, changes);
             }
+        }
+
+        private IEdmEntityContainer GetContainer() { 
+            return m_model.FindEntityContainer(m_context.GetType().Name);
+        }
+
+        public Type GetRelatedEntityType(Type entity, string relation) 
+        {
+            var container = GetContainer();
+
+            var set = container.EntitySets().FirstOrDefault(s => s.ElementType.Name == entity.BaseType.Name);
+
+            var targetSet = set.NavigationTargets.Where(n => n.NavigationProperty.Name == relation).Select(n => n.TargetEntitySet).FirstOrDefault();
+
+            var targetType = entity.BaseType.Assembly.GetType(targetSet.ElementType.Namespace + "." + targetSet.ElementType.Name);
+
+            return targetType;
         }
     }
 
