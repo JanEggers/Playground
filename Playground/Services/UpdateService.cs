@@ -5,10 +5,12 @@ using Playground.Hubs;
 using Playground.Models;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
+using System.Reflection;
 using System.Web;
 using System.Web.Http.OData;
 using System.Web.Http.OData.Formatter.Serialization;
@@ -32,7 +34,7 @@ namespace Playground.Services
         {
             get { return m_context; }
         }
-
+        
         public void SaveChanges(HttpRequestMessage request)
         {
             var audit = m_context.BeginAudit();
@@ -48,11 +50,17 @@ namespace Playground.Services
 
                 foreach (var property in entity.Properties)
                 {
-                    msg = property.Name + " changed from " + property.Original + " to " + property.Current;
-                    if (property.IsRelationship) {
-                        msg = "Relation " + msg;
-                    }
+                    var entityType = entity.Current.GetType();
+                    var prop = entityType.GetProperty(property.Name);
+                    var foreignKey = (ForeignKeyAttribute)prop.GetCustomAttribute(typeof(ForeignKeyAttribute));
                     
+                    msg = property.Name + " changed from " + property.Original + " to " + property.Current;
+                    
+                    if (foreignKey != null)
+                    {
+                        msg = "Relation to " + GetRelatedEntityType(entityType, foreignKey.Name).Name + " " + msg;
+                    }
+
                     Trace.WriteLine(msg);
 
                     changes[property.Name] = property.Current;
