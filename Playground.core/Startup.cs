@@ -66,6 +66,7 @@ namespace Playground.core
                 }
                 else
                 {
+                    
                     context.Response.Redirect("/index.html");
                 }
             });

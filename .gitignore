@@ -7,3 +7,7 @@
 **/bin
 **/obj
 *.user
+**/lib
+**/node_modules
+/Playground.core/wwwroot/app/*.js
+/Playground.core/wwwroot/app/*.map
