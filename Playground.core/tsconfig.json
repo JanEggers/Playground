@@ -8,5 +8,12 @@
     "experimentalDecorators": true,
     "removeComments": false,
     "noImplicitAny": false
-  }
+  },
+  "include": [
+    "wwwroot/app"
+  ],
+  "exclude": [
+    "wwwroot/lib",
+    "node_modules"
+  ]
 }

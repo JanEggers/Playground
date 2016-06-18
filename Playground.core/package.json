@@ -19,5 +19,8 @@
     "gulp": "^3.9.1",
     "gulp-clean": "^0.3.2"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "typescript": "^1.8.10",
+    "typings": "^1.0.4"
+  }
 }
