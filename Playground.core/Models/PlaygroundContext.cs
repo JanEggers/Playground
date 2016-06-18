@@ -1,9 +1,10 @@
 ﻿
 using Microsoft.EntityFrameworkCore;
+using OpenIddict;
 
 namespace Playground.core.Models
 {
-    public class PlaygroundContext : DbContext
+    public class PlaygroundContext : OpenIddictContext<PlaygroundUser>
     {
         public PlaygroundContext(DbContextOptions<PlaygroundContext> options)
             : base(options)

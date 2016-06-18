@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 using Microsoft.Extensions.Configuration;
@@ -32,6 +33,15 @@ namespace Playground.core
 
             var connection = @"Server=(localdb)\mssqllocaldb;Database=PlaygroundContext;Trusted_Connection=True;";
             services.AddDbContext<PlaygroundContext>(options => options.UseSqlServer(connection));
+
+            // Register the Identity services.
+            services.AddIdentity<PlaygroundUser, IdentityRole>()
+                .AddEntityFrameworkStores<PlaygroundContext>()
+                .AddDefaultTokenProviders();
+
+            // Register the OpenIddict services
+            services.AddOpenIddict<PlaygroundUser, PlaygroundContext>()
+                .DisableHttpsRequirement();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -41,6 +51,24 @@ namespace Playground.core
             loggerFactory.AddDebug();
 
             app.UseMvc();
+            
+            app.UseIdentity();
+
+            app.UseOpenIddict();
+
+            app.UseStaticFiles();
+
+            app.Use(async (context, next) =>
+            {
+                if (context.Request.Path.Value != "/" )
+                {
+                    await next();
+                }
+                else
+                {
+                    context.Response.Redirect("/index.html");
+                }
+            });
         }
     }
 }
