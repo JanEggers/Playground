@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -40,8 +41,13 @@ namespace Playground.core
                 .AddDefaultTokenProviders();
 
             // Register the OpenIddict services
-            services.AddOpenIddict<PlaygroundUser, PlaygroundContext>()
-                .DisableHttpsRequirement();
+            services.AddIdentity<PlaygroundUser, IdentityRole>(options => {
+                options.Cookies.ApplicationCookie.AuthenticationScheme = "ApplicationCookie";
+                options.Cookies.ApplicationCookie.CookieName = "Interop";
+                options.Cookies.ApplicationCookie.DataProtectionProvider = DataProtectionProvider.Create("Playground");
+            })
+                .AddEntityFrameworkStores<PlaygroundContext>()
+                .AddDefaultTokenProviders();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -49,12 +55,15 @@ namespace Playground.core
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
-
-            app.UseMvc();
             
-            app.UseIdentity();
+            app.UseMvcWithDefaultRoute();
 
-            app.UseOpenIddict();
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+
+            app.UseIdentity();
 
             app.UseStaticFiles();
 
@@ -65,8 +74,7 @@ namespace Playground.core
                     await next();
                 }
                 else
-                {
-                    
+                {                    
                     context.Response.Redirect("/index.html");
                 }
             });

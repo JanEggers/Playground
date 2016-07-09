@@ -1,14 +1,15 @@
 ﻿
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using OpenIddict;
 
 namespace Playground.core.Models
 {
-    public class PlaygroundContext : OpenIddictContext<PlaygroundUser>
+    public class PlaygroundContext : IdentityDbContext<PlaygroundUser>
     {
         public PlaygroundContext(DbContextOptions<PlaygroundContext> options)
             : base(options)
         {
+            Database.Migrate();
         }
 
         public DbSet<Company> Companies { get; set; }
