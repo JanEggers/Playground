@@ -5,7 +5,6 @@
       "version": "1.0.0",
       "type": "platform"
     },
-
     "Microsoft.AspNetCore.DataProtection.Extensions": "1.0.0",
     "Microsoft.AspNetCore.Diagnostics": "1.0.0",
     "Microsoft.AspNetCore.Identity": "1.0.0",
@@ -22,8 +21,8 @@
     "Microsoft.Extensions.Configuration.Json": "1.0.0",
     "Microsoft.Extensions.Logging": "1.0.0",
     "Microsoft.Extensions.Logging.Console": "1.0.0",
-    "Microsoft.Extensions.Logging.Debug": "1.0.0"
-  },
+    "Microsoft.Extensions.Logging.Debug": "1.0.0",
+    "AutoMapper": "5.0.2"  },
 
   "tools": {
     "Microsoft.AspNetCore.Server.IISIntegration.Tools": "1.0.0-preview2-final",

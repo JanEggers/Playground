@@ -16,6 +16,8 @@ namespace Playground.core
     {
         public Startup(IHostingEnvironment env)
         {
+            AutoMapperConfig.Initialize();
+
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)

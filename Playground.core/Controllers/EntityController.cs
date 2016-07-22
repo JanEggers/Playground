@@ -5,16 +5,17 @@ using System.Linq.Expressions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.EntityFrameworkCore;
+using Playground.core.Models;
 
 namespace Playground.core.Controllers
 {
     public abstract class EntityController<TEntity,TKey> : Controller
         where TEntity : class
     {
-        private DbContext m_db;
-        private DbSet<TEntity> m_set;
+        protected PlaygroundContext m_db;
+        protected DbSet<TEntity> m_set;
 
-        protected EntityController( DbContext db, DbSet<TEntity> set ) 
+        protected EntityController(PlaygroundContext db, DbSet<TEntity> set ) 
         {
             m_db = db;
             m_set = set;
