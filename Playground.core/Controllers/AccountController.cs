@@ -20,14 +20,7 @@ namespace IdentitySample.Controllers
             m_userManager = userManager;
             m_signInManager = signInManager;
         }
-
-
-        [HttpGet]
-        public IEnumerable<string> Get()
-        {
-            return new string[] { "value1", "value2" };
-        }
-
+        
         //
         // POST: /Account/Login 
         [HttpPost(nameof(Login))]
@@ -46,7 +39,7 @@ namespace IdentitySample.Controllers
 
         //
         // POST: /Account/Register
-        [HttpPost]
+        [HttpPost(nameof(Register))]
         public async Task<IActionResult> Register(string userName, string password)
         {
             if (!ModelState.IsValid)

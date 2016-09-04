@@ -4,7 +4,9 @@
     selector: "playground",
     template: `
 <h1>Playground</h1>
-<login></login>
+   <a routerLink="/login">Login</a>
+   <a routerLink="/register">Register</a>
+   <router-outlet></router-outlet>
 `,
 })
 
