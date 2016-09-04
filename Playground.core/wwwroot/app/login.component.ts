@@ -1,5 +1,5 @@
 ﻿import { Component, Injectable } from "@angular/core";
-import { Http } from "@angular/http";
+import { Http, Headers } from "@angular/http";
 
 import "rxjs/add/operator/toPromise";
 
@@ -16,6 +16,8 @@ import "rxjs/add/operator/toPromise";
     <input [(ngModel)]="password" placeholder="password">
 </div>
 <button (click)="login()" >Login</button>
+
+<p *ngIf="error" >{{error}}</p>
 `,
 })
 
@@ -23,27 +25,36 @@ import "rxjs/add/operator/toPromise";
 export class LoginComponent {
 
     constructor(private http: Http) {
+        this.user = "someone";
+        this.password = "pass";
     }
 
     user: string;
     password: string;
 
-    login(): Promise<void> {
-        var request: string = "/Account/Login?userName=" + this.user + "&password=" + this.password;
+    error: string;
 
-        return this.http.post(request, {})
+    login(): Promise<any> {
+        var headers = new Headers();
+        headers.append("Content-Type", "application/x-www-form-urlencoded");
+
+        var request: string = "/token";
+
+        var body = "grant_type=password&scope=offline_access&username=" + this.user + "&password=" + this.password;
+
+        return this.http.post(request, body, {
+            headers: headers,
+        })
             .toPromise()
-            .then(response => response.json().data)
+            .then(response => response.json())
             .then(d => {
                 return d;
             })
-            .catch(this.handleError);
-
-        //this.user.toString();
+            .catch((error) => this.handleError(error));
     }
 
     private handleError(error: any): Promise<void> {
-        console.error("An error occurred", error);
-        return Promise.reject(error.message || error);
+        this.error = error.message || error;
+        return Promise.reject(error);
     }
 }

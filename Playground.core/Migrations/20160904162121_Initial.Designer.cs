@@ -8,7 +8,7 @@ using Playground.core.Models;
 namespace Playground.core.Migrations
 {
     [DbContext(typeof(PlaygroundContext))]
-    [Migration("20160709121028_Initial")]
+    [Migration("20160904162121_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -124,6 +124,79 @@ namespace Playground.core.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
+            modelBuilder.Entity("OpenIddict.OpenIddictApplication", b =>
+                {
+                    b.Property<string>("Id");
+
+                    b.Property<string>("ClientId");
+
+                    b.Property<string>("ClientSecret");
+
+                    b.Property<string>("DisplayName");
+
+                    b.Property<string>("LogoutRedirectUri");
+
+                    b.Property<string>("RedirectUri");
+
+                    b.Property<string>("Type");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClientId")
+                        .IsUnique();
+
+                    b.ToTable("OpenIddictApplications");
+                });
+
+            modelBuilder.Entity("OpenIddict.OpenIddictAuthorization", b =>
+                {
+                    b.Property<string>("Id");
+
+                    b.Property<string>("Scope");
+
+                    b.Property<string>("UserId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("OpenIddictAuthorizations");
+                });
+
+            modelBuilder.Entity("OpenIddict.OpenIddictScope", b =>
+                {
+                    b.Property<string>("Id");
+
+                    b.Property<string>("Description");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("OpenIddictScopes");
+                });
+
+            modelBuilder.Entity("OpenIddict.OpenIddictToken", b =>
+                {
+                    b.Property<string>("Id");
+
+                    b.Property<string>("ApplicationId");
+
+                    b.Property<string>("AuthorizationId");
+
+                    b.Property<string>("Type");
+
+                    b.Property<string>("UserId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApplicationId");
+
+                    b.HasIndex("AuthorizationId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("OpenIddictTokens");
+                });
+
             modelBuilder.Entity("Playground.core.Models.Company", b =>
                 {
                     b.Property<int>("Id")
@@ -236,6 +309,28 @@ namespace Playground.core.Migrations
                         .WithMany("Roles")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("OpenIddict.OpenIddictAuthorization", b =>
+                {
+                    b.HasOne("Playground.core.Models.PlaygroundUser")
+                        .WithMany("Authorizations")
+                        .HasForeignKey("UserId");
+                });
+
+            modelBuilder.Entity("OpenIddict.OpenIddictToken", b =>
+                {
+                    b.HasOne("OpenIddict.OpenIddictApplication")
+                        .WithMany("Tokens")
+                        .HasForeignKey("ApplicationId");
+
+                    b.HasOne("OpenIddict.OpenIddictAuthorization")
+                        .WithMany("Tokens")
+                        .HasForeignKey("AuthorizationId");
+
+                    b.HasOne("Playground.core.Models.PlaygroundUser")
+                        .WithMany("Tokens")
+                        .HasForeignKey("UserId");
                 });
 
             modelBuilder.Entity("Playground.core.Models.Site", b =>

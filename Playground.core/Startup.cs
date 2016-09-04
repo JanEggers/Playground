@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -33,41 +32,51 @@ namespace Playground.core
         {
             // Add framework services.
             services.AddMvc();
-
-            var connection = @"Server=(localdb)\mssqllocaldb;Database=PlaygroundContext;Trusted_Connection=True;";
-            services.AddDbContext<PlaygroundContext>(options => options.UseSqlServer(connection));
+            
+            services.AddDbContext<PlaygroundContext>(o => 
+                o.UseSqlServer(Configuration.GetSection("PlaygroundContext:ConnectionString").Value));
 
             // Register the Identity services.
-            services.AddIdentity<PlaygroundUser, IdentityRole>()
-                .AddEntityFrameworkStores<PlaygroundContext>()
-                .AddDefaultTokenProviders();
-
-            // Register the OpenIddict services
-            services.AddIdentity<PlaygroundUser, IdentityRole>(options => {
-                options.Cookies.ApplicationCookie.AuthenticationScheme = "ApplicationCookie";
-                options.Cookies.ApplicationCookie.CookieName = "Interop";
-                options.Cookies.ApplicationCookie.DataProtectionProvider = DataProtectionProvider.Create("Playground");
+            services.AddIdentity<PlaygroundUser, IdentityRole>(o => {
+                o.Password.RequireDigit = false;
+                o.Password.RequireLowercase = false;
+                o.Password.RequireUppercase = false;
+                o.Password.RequireNonAlphanumeric = false;
+                o.Password.RequiredLength = 3;
             })
                 .AddEntityFrameworkStores<PlaygroundContext>()
-                .AddDefaultTokenProviders();
+                .AddDefaultTokenProviders()
+                ;
+
+            services.AddOpenIddict<PlaygroundUser, PlaygroundContext>()
+                .EnableTokenEndpoint("/token")
+                .AllowPasswordFlow()
+                .AllowRefreshTokenFlow()
+                .DisableHttpsRequirement()
+                .AddEphemeralSigningKey()
+                ;
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
-            loggerFactory.AddDebug();
-            
-            app.UseMvcWithDefaultRoute();
 
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                loggerFactory.AddDebug();
             }
 
             app.UseIdentity();
 
+            app.UseOAuthValidation();
+
+            app.UseOpenIddict();
+
             app.UseStaticFiles();
+
+            app.UseMvcWithDefaultRoute();
 
             app.Use(async (context, next) =>
             {

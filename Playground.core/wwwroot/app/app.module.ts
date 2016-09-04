@@ -1,6 +1,7 @@
 ﻿/// <reference path="../../typings/es6-shim/es6-shim.d.ts" />
 
 import { NgModule } from "@angular/core";
+import { LocationStrategy, HashLocationStrategy } from "@angular/common";
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule }   from '@angular/forms';
 import { HttpModule }    from '@angular/http';
@@ -23,6 +24,7 @@ import { RegisterComponent } from "./register.component";
         RegisterComponent
     ],
     providers: [
+        { provide:LocationStrategy, useClass: HashLocationStrategy }
     ],
     bootstrap: [AppComponent]
 })

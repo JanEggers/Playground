@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using OpenIddict;
 
 namespace Playground.core.Models
 {
-    public class PlaygroundUser : IdentityUser
+    public class PlaygroundUser : OpenIddictUser
     {
     }
 }
