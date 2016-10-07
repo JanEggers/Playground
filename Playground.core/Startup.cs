@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using JSNLog;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -61,6 +62,9 @@ namespace Playground.core
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
+            
+            var jsnlogConfiguration = new JsnlogConfiguration();
+            app.UseJSNLog( new LoggingAdapter( loggerFactory ), jsnlogConfiguration );
 
             if (env.IsDevelopment())
             {

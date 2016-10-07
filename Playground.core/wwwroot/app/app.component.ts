@@ -1,5 +1,7 @@
 ﻿import { Component } from "@angular/core";
 
+import { JL } from "jsnlog";
+
 @Component({
     selector: "playground",
     template: `
