@@ -11,7 +11,7 @@
     "noImplicitAny": false
   },
   "include": [
-    "wwwroot/app"
+    "wwwroot/app/**/*"
   ],
   "exclude": [
     "wwwroot/lib",
