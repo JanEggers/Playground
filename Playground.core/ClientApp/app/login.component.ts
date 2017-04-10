@@ -1,7 +1,9 @@
-﻿import { Component, Injectable } from "@angular/core";
-import { Http, Headers } from "@angular/http";
-
-import "rxjs/add/operator/toPromise";
+﻿import { 
+    Component, 
+    Injectable,
+    Http,
+    Headers,
+} from "./vendor";
 
 @Component({
     selector: "login",
@@ -38,7 +40,7 @@ export class LoginComponent {
         var headers = new Headers();
         headers.append("Content-Type", "application/x-www-form-urlencoded");
 
-        var request: string = "/token";
+        var request: string = "/connect/token";
 
         var body = "grant_type=password&scope=offline_access&username=" + this.user + "&password=" + this.password;
 
@@ -55,6 +57,6 @@ export class LoginComponent {
 
     private handleError(error: any): Promise<void> {
         this.error = error.message || error;
-        return Promise.reject(error);
+        throw error;
     }
 }

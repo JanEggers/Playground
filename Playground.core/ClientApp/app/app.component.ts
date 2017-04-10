@@ -1,6 +1,7 @@
-﻿import { Component } from "@angular/core";
+﻿import {
+    Component
+} from './vendor'
 
-import { JL } from "jsnlog";
 
 @Component({
     selector: "playground",

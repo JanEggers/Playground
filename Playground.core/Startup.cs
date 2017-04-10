@@ -10,8 +10,6 @@ using Microsoft.Extensions.Logging;
 
 
 using AspNet.Security.OpenIdConnect.Primitives;
-using OpenIddict.Core;
-using OpenIddict.Models;
 
 using Playground.core.Models;
 
@@ -77,16 +75,18 @@ namespace Playground.core
                 options.AddMvcBinders();
 
                 // Enable the authorization, logout, token and userinfo endpoints.
-                options.EnableAuthorizationEndpoint("/connect/authorize")
-                       .EnableLogoutEndpoint("/connect/logout")
+                options
+                        //.EnableAuthorizationEndpoint("/Account/Login")
+                       //.EnableLogoutEndpoint("/Account/Logout")
                        .EnableTokenEndpoint("/connect/token")
-                       .EnableUserinfoEndpoint("/api/userinfo");
+                       //.EnableUserinfoEndpoint("/api/userinfo")
+                       ;
 
                 options.AllowPasswordFlow()
                     .AllowRefreshTokenFlow();
 
                 // Make the "client_id" parameter mandatory when sending a token request.
-                options.RequireClientIdentification();
+                //options.RequireClientIdentification();
 
                 options.DisableHttpsRequirement();
             });
@@ -112,21 +112,22 @@ namespace Playground.core
 
             app.UseOpenIddict();
 
-            app.UseStaticFiles();
-
-            app.UseMvcWithDefaultRoute();
-
             app.Use(async (context, next) =>
             {
-                if (context.Request.Path.Value != "/" )
+                if (context.Request.Path.Value != "/")
                 {
                     await next();
                 }
                 else
-                {                    
-                    context.Response.Redirect("/index.html");
+                {
+                    context.Request.Path = "/index.html";
+                    await next();
                 }
             });
+
+            app.UseStaticFiles();
+
+            app.UseMvcWithDefaultRoute();
         }
     }
 }

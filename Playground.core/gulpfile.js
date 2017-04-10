@@ -1,31 +1,25 @@
 ﻿var gulp = require('gulp');
-var clean = require('gulp-clean');
 
-var destPath = './wwwroot/lib/';
+gulp.task('build.webpack', () => {
+    var webpack = require('webpack-stream');
+    var config = require('./webpack.config.js');
 
-// Delete the dist directory
-gulp.task('clean', function () {
-    return gulp.src(destPath)
-        .pipe(clean());
+    return gulp.src('ClientApp/app/main.ts')
+        .pipe(webpack(config))
+        .pipe(gulp.dest('wwwroot/'));
 });
 
-gulp.task("node2lib", () => {
-    return gulp.src([
-            '@angular/**',
-            'rxjs/**',
-            'systemjs/**',
-            'zone.js/**',
-            'core-js/**'
-    ], {
-        cwd: "node_modules/**"
-    })
-        .pipe(gulp.dest(destPath));
+gulp.task('watch.webpack', () => {
+    var webpack = require('webpack-stream');
+    var config = require('./webpack.config.js');
+
+    config.watch = true;
+
+    return gulp.src('ClientApp/app/main.ts')
+        .pipe(webpack(config))
+        .pipe(gulp.dest('wwwroot/'));
 });
 
-gulp.task('watch', ['watch.ts']);
+gulp.task('watch', ['watch.webpack']);
 
-gulp.task('watch.ts', [], function () {
-    return gulp.watch('scripts/*.ts', ['ts']);
-});
-
-gulp.task('default', ['node2lib']);
+gulp.task('default', ['build.webpack']);

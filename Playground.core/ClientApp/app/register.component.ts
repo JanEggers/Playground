@@ -1,7 +1,8 @@
-﻿import { Component, Injectable } from "@angular/core";
-import { Http } from "@angular/http";
-
-import "rxjs/add/operator/toPromise";
+﻿import { 
+    Component, 
+    Injectable,
+    Http 
+} from "./vendor";
 
 @Component({
     selector: "register",
@@ -45,6 +46,6 @@ export class RegisterComponent {
 
     private handleError(error: any): Promise<void> {
         this.error = error.message || error;
-        return Promise.reject(error);
+        throw error;
     }
 }
