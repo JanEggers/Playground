@@ -10,9 +10,7 @@ namespace Playground.Core.Test
         [TestMethod]
         public void Test()
         {
-            using (var context = new PlaygroundContext(new Microsoft.EntityFrameworkCore.DbContextOptions<PlaygroundContext>()))
-            {
-            }
+            var context = new PlaygroundContext(new Microsoft.EntityFrameworkCore.DbContextOptions<PlaygroundContext>());
         }
     }
 }

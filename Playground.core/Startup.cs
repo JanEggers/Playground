@@ -8,6 +8,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
+
+using AspNet.Security.OpenIdConnect.Primitives;
+using OpenIddict.Core;
+using OpenIddict.Models;
+
 using Playground.core.Models;
 
 namespace Playground.core
@@ -34,8 +39,11 @@ namespace Playground.core
             // Add framework services.
             services.AddMvc();
             
-            services.AddDbContext<PlaygroundContext>(o => 
-                o.UseSqlServer(Configuration.GetSection("PlaygroundContext:ConnectionString").Value));
+            services.AddDbContext<PlaygroundContext>(o => {
+                o.UseSqlServer(Configuration.GetSection("PlaygroundContext:ConnectionString").Value);
+    
+                o.UseOpenIddict();
+            });
 
             // Register the Identity services.
             services.AddIdentity<PlaygroundUser, IdentityRole>(o => {
@@ -49,13 +57,39 @@ namespace Playground.core
                 .AddDefaultTokenProviders()
                 ;
 
-            services.AddOpenIddict<PlaygroundUser, PlaygroundContext>()
-                .EnableTokenEndpoint("/token")
-                .AllowPasswordFlow()
-                .AllowRefreshTokenFlow()
-                .DisableHttpsRequirement()
-                .AddEphemeralSigningKey()
-                ;
+            // Configure Identity to use the same JWT claims as OpenIddict instead
+            // of the legacy WS-Federation claims it uses by default (ClaimTypes),
+            // which saves you from doing the mapping in your authorization controller.
+            services.Configure<IdentityOptions>(options =>
+            {
+                options.ClaimsIdentity.UserNameClaimType = OpenIdConnectConstants.Claims.Name;
+                options.ClaimsIdentity.UserIdClaimType = OpenIdConnectConstants.Claims.Subject;
+                options.ClaimsIdentity.RoleClaimType = OpenIdConnectConstants.Claims.Role;
+            });
+
+            services.AddOpenIddict(options => {
+                // Register the Entity Framework stores.
+                options.AddEntityFrameworkCoreStores<PlaygroundContext>();
+
+                // Register the ASP.NET Core MVC binder used by OpenIddict.
+                // Note: if you don't call this method, you won't be able to
+                // bind OpenIdConnectRequest or OpenIdConnectResponse parameters.
+                options.AddMvcBinders();
+
+                // Enable the authorization, logout, token and userinfo endpoints.
+                options.EnableAuthorizationEndpoint("/connect/authorize")
+                       .EnableLogoutEndpoint("/connect/logout")
+                       .EnableTokenEndpoint("/connect/token")
+                       .EnableUserinfoEndpoint("/api/userinfo");
+
+                options.AllowPasswordFlow()
+                    .AllowRefreshTokenFlow();
+
+                // Make the "client_id" parameter mandatory when sending a token request.
+                options.RequireClientIdentification();
+
+                options.DisableHttpsRequirement();
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

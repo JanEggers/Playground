@@ -1,9 +1,0 @@
-{
-  "name": "asp.net",
-  "private": true,
-  "dependencies": {
-    "reflect-metadata": "*",
-    "bootstrap": "*",
-    "jquery": "2.2.3"
-  }
-}
