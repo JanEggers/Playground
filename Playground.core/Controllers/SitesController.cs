@@ -1,6 +1,7 @@
 ﻿using System.Linq.Expressions;
 using System;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.JsonPatch;
 
@@ -8,6 +9,7 @@ using Playground.core.Models;
 
 namespace Playground.core.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     public class SitesController : EntityController<Site, int>  
     {

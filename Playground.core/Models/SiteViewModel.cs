@@ -1,12 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace Playground.core.Models
+﻿namespace Playground.core.Models
 {
     public class CompanySite
     {
+        static int count = 0;
+
+        public CompanySite()
+        {
+            count++;
+        }
+
         public Company Company { get; set; }
 
         public Site Site { get; set; }

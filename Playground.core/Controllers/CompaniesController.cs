@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.JsonPatch;
 
@@ -10,6 +11,7 @@ using System.Linq;
 
 namespace Playground.core.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     public class CompaniesController : EntityController<Company,int>
     {
@@ -31,15 +33,21 @@ namespace Playground.core.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            var vms = ( from c in m_db.Companies
-                        join s in m_db.Sites on c.Id equals s.CompanyId
-                        select new CompanySite {
-                            Company = c,
-                            Site = s
-                        }).UseAsDataSource()
-                        .For<SiteViewModel>().Where( p => p.SiteName == "Hallo" ).ToList();
-
             return GetAll();
+        }
+
+        [HttpGet(nameof(GetViewModels))]
+        public IActionResult GetViewModels()
+        {
+            var vms = (from c in m_db.Companies
+                       join s in m_db.Sites on c.Id equals s.CompanyId
+                       select new CompanySite
+                       {
+                           Company = c,
+                           Site = s
+                       }).ProjectTo<SiteViewModel>().Where(p => p.SiteName == "Hallo").ToList();
+
+            return Ok(vms);
         }
 
         [HttpGet("{key}", Name = nameof(GetSingleCompany))]

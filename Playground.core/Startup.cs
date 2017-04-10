@@ -13,6 +13,7 @@ using AspNet.Security.OpenIdConnect.Primitives;
 
 using Playground.core.Models;
 using Swashbuckle.AspNetCore.Swagger;
+using Playground.core.Services;
 
 namespace Playground.core
 {
@@ -101,7 +102,11 @@ namespace Playground.core
                     Flow = "password",
                     TokenUrl = "/connect/token"
                 });
+
+                options.OperationFilter<SecurityRequirementsOperationFilter>();
             });
+
+            services.AddTransient<SeedService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -118,7 +123,8 @@ namespace Playground.core
                 loggerFactory.AddDebug();
             }
 
-            app.UseIdentity();
+            //dont use identity as it creates cookies
+            //app.UseIdentity();
 
             app.UseOAuthValidation();
 
@@ -147,6 +153,8 @@ namespace Playground.core
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
             });
+
+            app.ApplicationServices.GetRequiredService<SeedService>().Seed();
         }
     }
 }

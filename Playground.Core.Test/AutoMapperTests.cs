@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Playground.core.Models;
 
@@ -10,7 +11,9 @@ namespace Playground.Core.Test
         [TestMethod]
         public void Test()
         {
-            var context = new PlaygroundContext(new Microsoft.EntityFrameworkCore.DbContextOptions<PlaygroundContext>());
+            using (var context = new PlaygroundContext(new DbContextOptions<PlaygroundContext>())) 
+            { 
+            }
         }
     }
 }
