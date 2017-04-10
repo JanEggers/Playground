@@ -36,23 +36,24 @@ export class LoginComponent {
 
     error: string;
 
-    login(): Promise<any> {
-        var headers = new Headers();
-        headers.append("Content-Type", "application/x-www-form-urlencoded");
+    async login(): Promise<any> {
+        try {
 
-        var request: string = "/connect/token";
+            var headers = new Headers();
+            headers.append("Content-Type", "application/x-www-form-urlencoded");
 
-        var body = "grant_type=password&scope=offline_access&username=" + this.user + "&password=" + this.password;
+            var request: string = "/connect/token";
 
-        return this.http.post(request, body, {
-            headers: headers,
-        })
-            .toPromise()
-            .then(response => response.json())
-            .then(d => {
-                return d;
-            })
-            .catch((error) => this.handleError(error));
+            var body = "grant_type=password&scope=offline_access&username=" + this.user + "&password=" + this.password;
+
+            var response = await this.http.post(request, body, {
+                headers: headers,
+            }).toPromise();
+
+            var data = response.json();
+        } catch (error) {
+            this.handleError(error);
+        }
     }
 
     private handleError(error: any): Promise<void> {

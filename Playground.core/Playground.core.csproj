@@ -45,6 +45,7 @@
     <PackageReference Include="OpenIddict.EntityFrameworkCore" Version="1.0.0-beta2-0596" />
     <PackageReference Include="OpenIddict.Models" Version="1.0.0-beta2-0596" />
     <PackageReference Include="OpenIddict.Mvc" Version="1.0.0-beta2-0596" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="1.0.0-rc3" />
   </ItemGroup>
 
   <ItemGroup>

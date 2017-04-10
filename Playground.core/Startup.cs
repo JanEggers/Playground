@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using AspNet.Security.OpenIdConnect.Primitives;
 
 using Playground.core.Models;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace Playground.core
 {
@@ -90,6 +91,17 @@ namespace Playground.core
 
                 options.DisableHttpsRequirement();
             });
+
+            services.AddSwaggerGen(options =>
+            {
+                options.SwaggerDoc("v1", new Info { Title = "My API", Version = "v1" });
+
+                options.AddSecurityDefinition("default", new OAuth2Scheme()
+                {
+                    Flow = "password",
+                    TokenUrl = "/connect/token"
+                });
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -128,6 +140,13 @@ namespace Playground.core
             app.UseStaticFiles();
 
             app.UseMvcWithDefaultRoute();
+
+            app.UseSwagger();
+
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+            });
         }
     }
 }
