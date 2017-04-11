@@ -12,6 +12,8 @@
         public Company Company { get; set; }
 
         public Site Site { get; set; }
+
+        public Translation Translation { get; set; }
     }
 
     public class SiteViewModel
@@ -19,5 +21,7 @@
         public string CompanyName { get; set; }
 
         public string SiteName { get; set; }
+
+        public string Translation { get; set; }
     }
 }

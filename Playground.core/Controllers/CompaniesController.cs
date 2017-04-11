@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.JsonPatch;
 using Playground.core.Models;
 using AutoMapper.QueryableExtensions;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace Playground.core.Controllers
 {
@@ -41,10 +42,12 @@ namespace Playground.core.Controllers
         {
             var vms = (from c in m_db.Companies
                        join s in m_db.Sites on c.Id equals s.CompanyId
+                       join t in m_db.Translations on c.Id equals t.Id
                        select new CompanySite
                        {
                            Company = c,
-                           Site = s
+                           Site = s,
+                           Translation = t
                        }).ProjectTo<SiteViewModel>().Where(p => p.SiteName == "Hallo").ToList();
 
             return Ok(vms);
