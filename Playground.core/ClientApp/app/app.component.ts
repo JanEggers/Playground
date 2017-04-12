@@ -9,6 +9,7 @@
 <h1>Playground</h1>
    <a routerLink="/login">Login</a>
    <a routerLink="/register">Register</a>
+   <a routerLink="/updates">Updates</a>
    <router-outlet></router-outlet>
 `,
 })

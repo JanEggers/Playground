@@ -4,6 +4,7 @@ using JSNLog;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 using Microsoft.Extensions.Configuration;
@@ -12,11 +13,16 @@ using Microsoft.Extensions.Logging;
 
 using AspNet.Security.OAuth.Validation;
 using AspNet.Security.OpenIdConnect.Primitives;
+
 using Playground.core.Models;
+using Playground.core.Hubs;
 using Playground.core.Services;
+
 using Serilog;
 using Serilog.Events;
+
 using Swashbuckle.AspNetCore.Swagger;
+
 
 namespace Playground.core
 {
@@ -45,7 +51,7 @@ namespace Playground.core
             services.AddDbContext<PlaygroundContext>(o => {
                 o.UseSqlServer(Configuration.GetSection("PlaygroundContext:ConnectionString").Value);
     
-                o.UseOpenIddict();
+                //o.UseOpenIddict();
             });
 
             // Register the Identity services.
@@ -107,6 +113,8 @@ namespace Playground.core
                 options.OperationFilter<SecurityRequirementsOperationFilter>();
             });
 
+            services.AddSignalRCore();
+
             services.AddTransient<SeedService>();
         }
 
@@ -154,6 +162,11 @@ namespace Playground.core
             });
 
             app.ApplicationServices.GetRequiredService<SeedService>().Seed();
+
+            app.UseSignalR(routes =>
+            {
+                routes.MapHub<UpdateHub>("/updates");
+            });
         }
 
         private void ConfigureSeriLog( IHostingEnvironment env )

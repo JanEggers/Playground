@@ -11,6 +11,7 @@ import { AppComponent }   from './app.component';
 import { routing } from './app.routing';
 import { LoginComponent } from "./login.component";
 import { RegisterComponent } from "./register.component";
+import { UpdateComponent } from "./update.component";
 
 @NgModule({
     imports: [
@@ -22,7 +23,8 @@ import { RegisterComponent } from "./register.component";
     declarations: [
         AppComponent,
         LoginComponent,
-        RegisterComponent
+        RegisterComponent,
+        UpdateComponent
     ],
     providers: [
         { provide:LocationStrategy, useClass: HashLocationStrategy }

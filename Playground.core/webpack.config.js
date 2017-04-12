@@ -11,7 +11,8 @@ module.exports = {
     devtool: 'source-map',
     module: {
         loaders: [
-            { test: /\.ts?$/, loaders: ['awesome-typescript-loader', 'angular2-template-loader'] }
+            { test: /\.ts?$/, loaders: ['awesome-typescript-loader', 'angular2-template-loader'] },
+            { test: /\.json$/, loader: 'json-loader' },
         ]
     },
 
