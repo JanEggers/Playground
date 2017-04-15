@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.EntityFrameworkCore;
 using Playground.core.Models;
+using System.Collections.Generic;
 
 namespace Playground.core.Controllers
 {
@@ -48,6 +49,19 @@ namespace Playground.core.Controllers
             }
 
             return Ok(item);
+        }
+
+        protected IActionResult GetManyRelated<TRelated>(TKey key, Expression<Func<TEntity, IEnumerable<TRelated>>> selector )
+        {
+            var item = m_set.Where(Find(key)).AsNoTracking().FirstOrDefault();
+            if (item == null)
+            {
+                return NotFound();
+            }
+
+            var items = m_set.Where(Find(key)).SelectMany(selector).ToList();
+
+            return Ok(items);
         }
 
         protected IActionResult PostEntity(TEntity item, string routeName)

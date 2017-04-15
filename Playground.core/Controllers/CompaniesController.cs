@@ -31,12 +31,14 @@ namespace Playground.core.Controllers
             return item.Id;
         }
 
+        [Produces(typeof(IEnumerable<Company>))]
         [HttpGet]
         public IActionResult Get()
         {
             return GetAll();
         }
 
+        [Produces(typeof(IEnumerable<SiteViewModel>))]
         [HttpGet(nameof(GetViewModels))]
         public IActionResult GetViewModels()
         {
@@ -53,24 +55,35 @@ namespace Playground.core.Controllers
             return Ok(vms);
         }
 
+        [Produces(typeof(Company))]
         [HttpGet("{key}", Name = nameof(GetSingleCompany))]
-        public IActionResult GetSingleCompany([FromQuery] int key)
+        public IActionResult GetSingleCompany(int key)
         {
             return GetSingleEntity(key);
         }
+        
+        [Produces(typeof(IEnumerable<Site>))]
+        [HttpGet("{key}/Sites", Name = nameof(GetSitesOfCompany))]
+        public IActionResult GetSitesOfCompany(int key)
+        {
+            return GetManyRelated(key, p => p.Sites);
+        }
 
+        [Produces(typeof(Company))]
         [HttpPost]
         public IActionResult Post([FromBody]Company item)
         {
             return PostEntity(item,nameof(GetSingleCompany));
         }
 
+        [Produces(typeof(Company))]
         [HttpPatch("{key}")]
         public IActionResult Patch([FromQuery] int key, [FromBody]JsonPatchDocument<Company> patch)
         {
             return PatchEntity(key, patch);
         }
 
+        [Produces(typeof(void))]
         [HttpDelete("{key}")]
         public IActionResult Delete([FromQuery] int key)
         {

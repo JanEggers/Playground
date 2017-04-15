@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.JsonPatch;
 
 using Playground.core.Models;
+using System.Collections.Generic;
 
 namespace Playground.core.Controllers
 {
@@ -28,30 +29,35 @@ namespace Playground.core.Controllers
             return item.Id;
         }
 
+        [Produces(typeof(IEnumerable<Site>))]
         [HttpGet]
         public IActionResult Get()
         {
             return GetAll();
         }
-        
+
+        [Produces(typeof(Site))]
         [HttpGet("{key}", Name = nameof(GetSingleSite))]
         public IActionResult GetSingleSite([FromQuery] int key)
         {
             return GetSingleEntity( key );
         }
 
+        [Produces(typeof(Site))]
         [HttpPost]
         public IActionResult Post([FromBody]Site item)
         {
             return PostEntity(item, nameof(GetSingleSite));
         }
 
+        [Produces(typeof(Site))]
         [HttpPatch("{key}")]
         public IActionResult Patch([FromQuery] int key, [FromBody]JsonPatchDocument<Site> patch)
         {
             return PatchEntity(key, patch);
         }
 
+        [Produces(typeof(void))]
         [HttpDelete("{key}")]
         public IActionResult Delete([FromQuery] int key)
         {

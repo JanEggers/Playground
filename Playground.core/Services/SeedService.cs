@@ -44,7 +44,34 @@ namespace Playground.core.Services
                 });
             }
 
+            var missing = 1000 - m_context.Companies.Count();
+
+            for (int i = 0; i < missing; i++)
+            {
+
+                m_context.Companies.Add(new Company()
+                {
+                    Name = $"C{i}"
+                });
+            }
+            
             m_context.SaveChanges();
+
+            //foreach (var companyx in m_context.Companies)
+            //{
+            //    var missing = 1000 - company.Sites.Count;
+
+            //    for (int i = 0; i < missing; i++)
+            //    {
+            //        m_context.Sites.Add(new Site()
+            //        {
+            //            Name = $"S{i}",
+            //            Company = companyx
+            //        });
+            //    }
+            //}
+
+            //m_context.SaveChanges();
         }
     }
 }

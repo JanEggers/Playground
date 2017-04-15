@@ -84,9 +84,9 @@ namespace IdentitySample.Controllers
             await m_signInManager.SignOutAsync();
             return Ok();
         }
-
+        
         [HttpPost("~/connect/token"), Produces("application/json")]
-        public async Task<IActionResult> Exchange(OpenIdConnectRequest request)
+        public async Task<IActionResult> Exchange( [FromForm] OpenIdConnectRequest request)
         {
             Debug.Assert(request.IsTokenRequest(),
                 "The OpenIddict binder for ASP.NET Core MVC is not registered. " +
