@@ -17,7 +17,8 @@ using AspNet.Security.OpenIdConnect.Primitives;
 using Playground.core.Models;
 using Playground.core.Hubs;
 using Playground.core.Services;
-
+using Microsoft.AspNet.OData.Extensions;
+using Playground.core.Odata;
 using Serilog;
 using Serilog.Events;
 
@@ -116,6 +117,9 @@ namespace Playground.core
             services.AddSignalR();
 
             services.AddTransient<SeedService>();
+            services.AddTransient<PlaygroundModelBuilder>();
+
+            services.AddOData();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -151,8 +155,11 @@ namespace Playground.core
             });
 
             app.UseStaticFiles();
-
-            app.UseMvcWithDefaultRoute();
+            
+            app.UseMvc( builder => {
+                builder.MapODataServiceRoute("odata", "odata", app.ApplicationServices.GetRequiredService<PlaygroundModelBuilder>().GetEdmModel() );
+                builder.MapRoute("default", "api/{controller}/{action}");
+            } );
 
             app.UseSwagger();
 

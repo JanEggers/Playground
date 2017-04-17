@@ -34,19 +34,26 @@ namespace Playground.Client
 
                     Console.WriteLine("login successful");
 
-                    while (true) { 
-                        var api2 = new MyAPI(new Uri("http://localhost:5000/"));
-                        api2.HttpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {result.AuthentificationToken}");
-                        var companies = await api2.ApiCompaniesGetAsync();
-
-                        await Task.WhenAll(companies.Select(async p =>
+                    while (true) {
+                        using (var api2 = new MyAPI(new Uri("http://localhost:5000/")))
                         {
-                            await Task.Yield(); 
-                            p.Sites = await api2.ApiCompaniesByKeySitesGetAsync(p.Id.Value);
-                        }));
+                            api2.HttpClient.Timeout = TimeSpan.FromSeconds(10);
+                            api2.HttpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {result.AuthentificationToken}");
+                            var companies = await api2.ApiCompaniesGetAsync();
 
+                            var start = DateTime.Now;
 
-                        Console.WriteLine("got em");
+                            await Task.WhenAll(companies.Select(async p =>
+                            {
+                                await Task.Yield();
+                                p.Sites = await api2.ApiCompaniesByKeySitesGetAsync(p.Id.Value);
+                            }));
+
+                            var diff = DateTime.Now - start;
+
+                            Console.WriteLine($"got em {diff}");
+
+                        }
                     }
                 }
                 catch (Exception)

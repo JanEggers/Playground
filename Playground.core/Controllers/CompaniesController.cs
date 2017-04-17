@@ -9,12 +9,14 @@ using Playground.core.Models;
 using AutoMapper.QueryableExtensions;
 using System.Linq;
 using System.Collections.Generic;
+using Microsoft.AspNet.OData;
 using AutoMapper;
 
 namespace Playground.core.Controllers
 {
-    [Authorize]
-    [Route("api/[controller]")]
+    //[Authorize]
+    [EnableQuery]
+    [Route("odata/Companies")]
     public class CompaniesController : EntityController<Company,int>
     {
         private IConfigurationProvider m_mapperConfig;

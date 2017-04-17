@@ -7,11 +7,13 @@ using Microsoft.AspNetCore.JsonPatch;
 
 using Playground.core.Models;
 using System.Collections.Generic;
+using Microsoft.AspNet.OData;
 
 namespace Playground.core.Controllers
 {
-    [Authorize]
-    [Route("api/[controller]")]
+    //[Authorize]
+    [EnableQuery]
+    [Route("odata/Sites")]
     public class SitesController : EntityController<Site, int>  
     {
         public SitesController(PlaygroundContext ctx)
