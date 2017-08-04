@@ -8,9 +8,10 @@ using Playground.core.Models;
 namespace Playground.core.Migrations
 {
     [DbContext(typeof(PlaygroundContext))]
-    partial class PlaygroundContextModelSnapshot : ModelSnapshot
+    [Migration("20170730070156_SubCompanies")]
+    partial class SubCompanies
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
             modelBuilder
                 .HasAnnotation("ProductVersion", "1.1.2")

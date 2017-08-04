@@ -12,4 +12,14 @@ namespace Playground.core.Models
 
         public virtual ICollection<Site> Sites { get; set; }
     }
+
+    public class CompanySub : Company
+    {
+        public int Sub { get; set; }
+    }
+
+    public class CompanySub2 : Company
+    {
+        public int Sub2 { get; set; }
+    }
 }

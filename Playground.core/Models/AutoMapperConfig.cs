@@ -1,14 +1,17 @@
 ﻿using AutoMapper;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Playground.core.Models
 {
-    public class AutoMapperConfig
+    public static class AutoMapperConfig
     {
-        public static void Initialize() {
-            Mapper.Initialize(cfg =>
+        public static IServiceCollection AddMappings( this IServiceCollection services ) {
+            var config = new MapperConfiguration(cfg =>
             {
                 cfg.CreateMap<Company, CompanyViewModel>()
                     .ForMember(vm => vm.NumberOfSites, conf => conf.MapFrom(ol => ol.Sites.Count));
+
+                cfg.CreateMap<CompanyViewModel, CompanyViewModel>();
 
 
                 cfg.CreateMap<CompanySite, SiteViewModel>()
@@ -17,6 +20,10 @@ namespace Playground.core.Models
                     .ForMember(vm => vm.Translation, conf => conf.MapFrom(ol => ol.Translation.Text))
                     ;
             });
+
+            services.AddSingleton<IConfigurationProvider>(config);
+
+            return services;
         }
     }
 }

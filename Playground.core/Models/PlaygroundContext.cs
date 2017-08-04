@@ -11,20 +11,34 @@ namespace Playground.core.Models
         public PlaygroundContext(DbContextOptions<PlaygroundContext> options)
             : base(options)
         {
-            Database.Migrate();
+            //Database.Migrate();
 
-            var translations = new List<Translation>();
+            //var translations = new List<Translation>();
 
-            for (int i = 0; i < 100; i++)
-            {
-                translations.Add(new Translation()
-                {
-                    Id = i,
-                    Text = i.ToString()
-                });
-            }
+            //for (int i = 0; i < 100; i++)
+            //{
+            //    translations.Add(new Translation()
+            //    {
+            //        Id = i,
+            //        Text = i.ToString()
+            //    });
+            //}
 
-            Translations = translations.AsQueryable();
+            //Translations = translations.AsQueryable();
+        }
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            builder.Entity<Company>()
+                .ForSqlServerToTable("Companies");
+
+            builder.Entity<CompanySub>()
+                .HasBaseType<Company>();
+
+            builder.Entity<CompanySub2>()
+                .HasBaseType<Company>();
+
+            base.OnModelCreating(builder);
         }
 
         public DbSet<Company> Companies { get; set; }

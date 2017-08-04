@@ -21,8 +21,6 @@ namespace Playground.core
     {
         public Startup(IHostingEnvironment env)
         {
-            AutoMapperConfig.Initialize();
-
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
@@ -36,6 +34,8 @@ namespace Playground.core
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddMappings();
+
             // Add framework services.
             services.AddMvc();
             

@@ -9,6 +9,7 @@ using Playground.core.Models;
 using AutoMapper.QueryableExtensions;
 using System.Linq;
 using System.Collections.Generic;
+using AutoMapper;
 
 namespace Playground.core.Controllers
 {
@@ -16,9 +17,12 @@ namespace Playground.core.Controllers
     [Route("api/[controller]")]
     public class CompaniesController : EntityController<Company,int>
     {
-        public CompaniesController(PlaygroundContext ctx)
+        private IConfigurationProvider m_mapperConfig;
+
+        public CompaniesController(PlaygroundContext ctx, IConfigurationProvider mapperConfig)
             : base(ctx, ctx.Companies)
         {
+            m_mapperConfig = mapperConfig;
         }
 
         protected override Expression<Func<Company, bool>> Find(int key)
@@ -50,7 +54,7 @@ namespace Playground.core.Controllers
                            Company = c,
                            Site = s,
                            Translation = t
-                       }).ProjectTo<SiteViewModel>().Where(p => p.SiteName == "Hallo").ToList();
+                       }).ProjectTo<SiteViewModel>(m_mapperConfig).Where(p => p.SiteName == "Hallo").ToList();
 
             return Ok(vms);
         }
