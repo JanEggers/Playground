@@ -1,19 +1,22 @@
-﻿using JSNLog;
+﻿using System.IO;
+using JSNLog;
+
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-
 using AspNet.Security.OpenIdConnect.Primitives;
 
 using Playground.core.Models;
-using Swashbuckle.AspNetCore.Swagger;
 using Playground.core.Services;
+using Serilog;
+using Serilog.Events;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace Playground.core
 {
@@ -68,30 +71,23 @@ namespace Playground.core
             });
 
             services.AddOpenIddict(options => {
-                // Register the Entity Framework stores.
-                options.AddEntityFrameworkCoreStores<PlaygroundContext>();
-
-                // Register the ASP.NET Core MVC binder used by OpenIddict.
-                // Note: if you don't call this method, you won't be able to
-                // bind OpenIdConnectRequest or OpenIdConnectResponse parameters.
-                options.AddMvcBinders();
-
-                // Enable the authorization, logout, token and userinfo endpoints.
                 options
-                        //.EnableAuthorizationEndpoint("/Account/Login")
-                       //.EnableLogoutEndpoint("/Account/Logout")
-                       .EnableTokenEndpoint("/connect/token")
-                       //.EnableUserinfoEndpoint("/api/userinfo")
-                       ;
-
-                options.AllowPasswordFlow()
-                    .AllowRefreshTokenFlow();
-
-                // Make the "client_id" parameter mandatory when sending a token request.
-                //options.RequireClientIdentification();
-
-                options.DisableHttpsRequirement();
+                    // Register the Entity Framework stores.
+                    .AddEntityFrameworkCoreStores<PlaygroundContext>()
+                    // Register the ASP.NET Core MVC binder used by OpenIddict.
+                    // Note: if you don't call this method, you won't be able to
+                    // bind OpenIdConnectRequest or OpenIdConnectResponse parameters.
+                    .AddMvcBinders()
+                    // Enable the authorization, logout, token and userinfo endpoints.
+                    .EnableTokenEndpoint("/connect/token")
+                    .AllowPasswordFlow()
+                    .AllowRefreshTokenFlow()
+                    .DisableHttpsRequirement()
+                    ;
             });
+
+            services.AddAuthentication()
+                .AddOAuthValidation();
 
             services.AddSwaggerGen(options =>
             {
@@ -113,7 +109,8 @@ namespace Playground.core
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
-            
+            loggerFactory.AddSerilog();
+
             var jsnlogConfiguration = new JsnlogConfiguration();
             app.UseJSNLog( new LoggingAdapter( loggerFactory ), jsnlogConfiguration );
 
@@ -123,13 +120,10 @@ namespace Playground.core
                 loggerFactory.AddDebug();
             }
 
-            //dont use identity as it creates cookies
-            //app.UseIdentity();
+            ConfigureSeriLog( env );
 
-            app.UseOAuthValidation();
-
-            app.UseOpenIddict();
-
+            app.UseAuthentication();
+            
             app.Use(async (context, next) =>
             {
                 if (context.Request.Path.Value != "/")
@@ -155,6 +149,32 @@ namespace Playground.core
             });
 
             app.ApplicationServices.GetRequiredService<SeedService>().Seed();
+        }
+
+        private void ConfigureSeriLog( IHostingEnvironment env )
+        {
+            string directory;
+            if ( env.IsDevelopment() )
+            {
+                directory = $"{env.ContentRootPath}\\Tracing\\";
+            }
+            else
+            {
+                directory = $"{env.ContentRootPath}\\..\\Tracing\\";
+            }
+
+            if ( !Directory.Exists( directory ) )
+            {
+                Directory.CreateDirectory( directory );
+            }
+
+            var config = new LoggerConfiguration()
+                .WriteTo.RollingFile( $"{directory}{{Date}}.log", outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz}\t[{Level:w3}]\t{Message}\t[{SourceContext}]{NewLine}{Exception}" );
+
+            config.MinimumLevel.Is( LogEventLevel.Debug );
+
+            var logger = config.CreateLogger();
+            Log.Logger = logger;
         }
     }
 }

@@ -30,7 +30,7 @@ namespace Playground.core.Models
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.Entity<Company>()
-                .ForSqlServerToTable("Companies");
+                .ToTable( "Companies" );
 
             builder.Entity<CompanySub>()
                 .HasBaseType<Company>();

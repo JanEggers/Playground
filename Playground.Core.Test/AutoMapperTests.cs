@@ -16,7 +16,7 @@ namespace Playground.Core.Test
         {
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddDbContext<PlaygroundContext>(o => {
-                o.UseInMemoryDatabase();
+                o.UseInMemoryDatabase( nameof( PlaygroundContext ) );
             });
 
             serviceCollection.AddMappings();

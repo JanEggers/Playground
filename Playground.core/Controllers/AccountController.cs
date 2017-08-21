@@ -1,22 +1,23 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
+
+using AspNet.Security.OpenIdConnect.Extensions;
+using AspNet.Security.OpenIdConnect.Primitives;
+using AspNet.Security.OpenIdConnect.Server;
+
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Playground.core.Models;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Builder;
-using AspNet.Security.OpenIdConnect.Extensions;
-using Microsoft.AspNetCore.Authentication;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Http.Authentication;
-using AspNet.Security.OpenIdConnect.Server;
-using AspNet.Security.OpenIdConnect.Primitives;
-using System.Diagnostics;
-using OpenIddict.Core;
-using System.Linq;
 using Microsoft.Extensions.Options;
 
-namespace IdentitySample.Controllers
+using OpenIddict.Core;
+
+using Playground.core.Models;
+
+namespace Playground.core.Controllers
 {
     [Route("[controller]")]
     public class AccountController : Controller
@@ -163,8 +164,7 @@ namespace IdentitySample.Controllers
             else if (request.IsAuthorizationCodeGrantType() || request.IsRefreshTokenGrantType())
             {
                 // Retrieve the claims principal stored in the authorization code/refresh token.
-                var info = await HttpContext.Authentication.GetAuthenticateInfoAsync(
-                    OpenIdConnectServerDefaults.AuthenticationScheme);
+                var info = await HttpContext.AuthenticateAsync();
 
                 // Retrieve the user profile corresponding to the authorization code/refresh token.
                 // Note: if you want to automatically invalidate the authorization code/refresh token

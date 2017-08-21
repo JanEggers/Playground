@@ -1,10 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.15
+VisualStudioVersion = 15.0.26730.8
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Playground", "Playground\Playground.csproj", "{52951EA6-D6AD-4281-9B02-80AC0B504DB0}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{575F7237-C8A9-4F57-AD9E-8B89F1491CB1}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
@@ -15,18 +13,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Playground.core", "Playgrou
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Playground.Core.Test", "Playground.Core.Test\Playground.Core.Test.csproj", "{B54427E8-22D6-4BBE-83EF-2AD009375571}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Playground.Client", "Playground.Client\Playground.Client.csproj", "{5525FDAC-35F6-49DF-A7FF-A148BEB12411}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{52951EA6-D6AD-4281-9B02-80AC0B504DB0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{52951EA6-D6AD-4281-9B02-80AC0B504DB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{52951EA6-D6AD-4281-9B02-80AC0B504DB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{52951EA6-D6AD-4281-9B02-80AC0B504DB0}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8ACCFE03-45D3-46FD-9864-B7FE7EAFB802}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8ACCFE03-45D3-46FD-9864-B7FE7EAFB802}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8ACCFE03-45D3-46FD-9864-B7FE7EAFB802}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -35,12 +27,11 @@ Global
 		{B54427E8-22D6-4BBE-83EF-2AD009375571}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B54427E8-22D6-4BBE-83EF-2AD009375571}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B54427E8-22D6-4BBE-83EF-2AD009375571}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5525FDAC-35F6-49DF-A7FF-A148BEB12411}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5525FDAC-35F6-49DF-A7FF-A148BEB12411}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5525FDAC-35F6-49DF-A7FF-A148BEB12411}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5525FDAC-35F6-49DF-A7FF-A148BEB12411}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {284C18CF-314D-498C-B8EA-5925F6A559D7}
 	EndGlobalSection
 EndGlobal

@@ -29,24 +29,27 @@ public class SecurityRequirementsOperationFilter : IOperationFilter
             return;
         }
 
-        operation.Responses.Add("401", new Response { Description = "Unauthorized" });
+        operation.Responses.Add( "401", new Response { Description = "Unauthorized" });
+        operation.Responses.Add( "403", new Response { Description = "Forbidden" } );
 
         var requiredClaimTypes = authrizations
             .Select(x => x.Policy != null ? authorizationOptions.Value.GetPolicy(x.Policy) : authorizationOptions.Value.DefaultPolicy)
             .SelectMany(x => x.Requirements)
             .OfType<ClaimsAuthorizationRequirement>()
-            .Select(x => x.ClaimType);
+            .Select(x => x.ClaimType)
+            .ToList();
 
-        if (requiredClaimTypes.Any())
+        if (!requiredClaimTypes.Any())
         {
-            operation.Responses.Add("403", new Response { Description = "Forbidden" });
-
-            operation.Security = new List<IDictionary<string, IEnumerable<string>>>();
-            operation.Security.Add(
-                new Dictionary<string, IEnumerable<string>>
-                {
-                    { "oauth2", requiredClaimTypes }
-                });
+            requiredClaimTypes.Add( "default" );
         }
+
+
+        operation.Security = new List<IDictionary<string, IEnumerable<string>>>();
+        operation.Security.Add(
+            new Dictionary<string, IEnumerable<string>>
+            {
+                { "default", requiredClaimTypes }
+            } );
     }
 }

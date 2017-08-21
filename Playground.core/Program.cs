@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Builder;
 
 namespace Playground.core
 {
@@ -10,6 +9,7 @@ namespace Playground.core
         {
             var host = new WebHostBuilder()
                 .UseKestrel()
+                .UseIISIntegration()
                 .UseContentRoot(Directory.GetCurrentDirectory())
                 .UseStartup<Startup>()
                 .Build();

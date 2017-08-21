@@ -13,3 +13,5 @@
 
 /Playground.core/wwwroot/**/*
 /.vscode
+/_ReSharper.Caches/
+**/Tracing

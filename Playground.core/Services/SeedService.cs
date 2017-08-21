@@ -1,5 +1,6 @@
 ﻿using Playground.core.Models;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace Playground.core.Services
 {
@@ -14,6 +15,8 @@ namespace Playground.core.Services
         
         public void Seed() 
         {
+            m_context.Database.Migrate();
+
             var company = m_context.Companies.FirstOrDefault(p => p.Name == "Hallo");
 
             if (company == null)
