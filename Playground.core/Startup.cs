@@ -10,8 +10,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
+using AspNet.Security.OAuth.Validation;
 using AspNet.Security.OpenIdConnect.Primitives;
-
 using Playground.core.Models;
 using Playground.core.Services;
 using Serilog;
@@ -59,7 +59,7 @@ namespace Playground.core
                 .AddEntityFrameworkStores<PlaygroundContext>()
                 .AddDefaultTokenProviders()
                 ;
-
+            
             // Configure Identity to use the same JWT claims as OpenIddict instead
             // of the legacy WS-Federation claims it uses by default (ClaimTypes),
             // which saves you from doing the mapping in your authorization controller.
@@ -86,7 +86,11 @@ namespace Playground.core
                     ;
             });
 
-            services.AddAuthentication()
+            services.AddAuthentication( o =>
+                {
+                    o.DefaultAuthenticateScheme = OAuthValidationDefaults.AuthenticationScheme;
+                    o.DefaultChallengeScheme = OAuthValidationDefaults.AuthenticationScheme;
+                } )
                 .AddOAuthValidation();
 
             services.AddSwaggerGen(options =>
@@ -123,7 +127,7 @@ namespace Playground.core
             ConfigureSeriLog( env );
 
             app.UseAuthentication();
-            
+
             app.Use(async (context, next) =>
             {
                 if (context.Request.Path.Value != "/")
