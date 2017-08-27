@@ -9,6 +9,7 @@
     <PackageId>Playground.core</PackageId>
     <RuntimeIdentifier>win7-x64</RuntimeIdentifier>
     <TypeScriptCompileBlocked>True</TypeScriptCompileBlocked>
+    <TypeScriptToolsVersion>2.3</TypeScriptToolsVersion>
   </PropertyGroup>
   
   <ItemGroup>

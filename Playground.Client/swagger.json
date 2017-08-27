@@ -60,8 +60,10 @@
         "produces": [],
         "responses": {
           "200": { "description": "Success" },
-          "401": { "description": "Unauthorized" }
-        }
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" }
+        },
+        "security": [ { "default": [ "default" ] } ]
       }
     },
     "/connect/token": {
@@ -318,13 +320,15 @@
               "items": { "$ref": "#/definitions/Company" }
             }
           },
-          "401": { "description": "Unauthorized" }
-        }
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" }
+        },
+        "security": [ { "default": [ "default" ] } ]
       },
       "post": {
         "tags": [ "Companies" ],
         "operationId": "ApiCompaniesPost",
-        "consumes": [ "application/json", "text/json", "application/json-patch+json" ],
+        "consumes": [ "application/json-patch+json", "application/json", "text/json", "application/*+json" ],
         "produces": [ "text/plain", "application/json", "text/json" ],
         "parameters": [
           {
@@ -339,8 +343,10 @@
             "description": "Success",
             "schema": { "$ref": "#/definitions/Company" }
           },
-          "401": { "description": "Unauthorized" }
-        }
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" }
+        },
+        "security": [ { "default": [ "default" ] } ]
       }
     },
     "/api/Companies/GetViewModels": {
@@ -357,8 +363,10 @@
               "items": { "$ref": "#/definitions/SiteViewModel" }
             }
           },
-          "401": { "description": "Unauthorized" }
-        }
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" }
+        },
+        "security": [ { "default": [ "default" ] } ]
       }
     },
     "/api/Companies/{key}": {
@@ -381,8 +389,10 @@
             "description": "Success",
             "schema": { "$ref": "#/definitions/Company" }
           },
-          "401": { "description": "Unauthorized" }
-        }
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" }
+        },
+        "security": [ { "default": [ "default" ] } ]
       },
       "delete": {
         "tags": [ "Companies" ],
@@ -406,13 +416,15 @@
         ],
         "responses": {
           "200": { "description": "Success" },
-          "401": { "description": "Unauthorized" }
-        }
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" }
+        },
+        "security": [ { "default": [ "default" ] } ]
       },
       "patch": {
         "tags": [ "Companies" ],
         "operationId": "ApiCompaniesByKeyPatch",
-        "consumes": [ "application/json", "text/json", "application/json-patch+json" ],
+        "consumes": [ "application/json-patch+json", "application/json", "text/json", "application/*+json" ],
         "produces": [ "text/plain", "application/json", "text/json" ],
         "parameters": [
           {
@@ -426,7 +438,10 @@
             "name": "patch",
             "in": "body",
             "required": false,
-            "schema": { "$ref": "#/definitions/JsonPatchDocument[Company]" }
+            "schema": {
+              "type": "array",
+              "items": { "$ref": "#/definitions/Operation" }
+            }
           },
           {
             "name": "key",
@@ -440,8 +455,10 @@
             "description": "Success",
             "schema": { "$ref": "#/definitions/Company" }
           },
-          "401": { "description": "Unauthorized" }
-        }
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" }
+        },
+        "security": [ { "default": [ "default" ] } ]
       }
     },
     "/api/Companies/{key}/Sites": {
@@ -467,8 +484,10 @@
               "items": { "$ref": "#/definitions/Site" }
             }
           },
-          "401": { "description": "Unauthorized" }
-        }
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" }
+        },
+        "security": [ { "default": [ "default" ] } ]
       }
     },
     "/api/Sites": {
@@ -485,13 +504,15 @@
               "items": { "$ref": "#/definitions/Site" }
             }
           },
-          "401": { "description": "Unauthorized" }
-        }
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" }
+        },
+        "security": [ { "default": [ "default" ] } ]
       },
       "post": {
         "tags": [ "Sites" ],
         "operationId": "ApiSitesPost",
-        "consumes": [ "application/json", "text/json", "application/json-patch+json" ],
+        "consumes": [ "application/json-patch+json", "application/json", "text/json", "application/*+json" ],
         "produces": [ "text/plain", "application/json", "text/json" ],
         "parameters": [
           {
@@ -506,8 +527,10 @@
             "description": "Success",
             "schema": { "$ref": "#/definitions/Site" }
           },
-          "401": { "description": "Unauthorized" }
-        }
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" }
+        },
+        "security": [ { "default": [ "default" ] } ]
       }
     },
     "/api/Sites/{key}": {
@@ -536,8 +559,10 @@
             "description": "Success",
             "schema": { "$ref": "#/definitions/Site" }
           },
-          "401": { "description": "Unauthorized" }
-        }
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" }
+        },
+        "security": [ { "default": [ "default" ] } ]
       },
       "delete": {
         "tags": [ "Sites" ],
@@ -561,13 +586,15 @@
         ],
         "responses": {
           "200": { "description": "Success" },
-          "401": { "description": "Unauthorized" }
-        }
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" }
+        },
+        "security": [ { "default": [ "default" ] } ]
       },
       "patch": {
         "tags": [ "Sites" ],
         "operationId": "ApiSitesByKeyPatch",
-        "consumes": [ "application/json", "text/json", "application/json-patch+json" ],
+        "consumes": [ "application/json-patch+json", "application/json", "text/json", "application/*+json" ],
         "produces": [ "text/plain", "application/json", "text/json" ],
         "parameters": [
           {
@@ -581,7 +608,10 @@
             "name": "patch",
             "in": "body",
             "required": false,
-            "schema": { "$ref": "#/definitions/JsonPatchDocument[Site]" }
+            "schema": {
+              "type": "array",
+              "items": { "$ref": "#/definitions/Operation" }
+            }
           },
           {
             "name": "key",
@@ -595,8 +625,10 @@
             "description": "Success",
             "schema": { "$ref": "#/definitions/Site" }
           },
-          "401": { "description": "Unauthorized" }
-        }
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" }
+        },
+        "security": [ { "default": [ "default" ] } ]
       }
     },
     "/api/Values": {
@@ -613,13 +645,15 @@
               "items": { "type": "string" }
             }
           },
-          "401": { "description": "Unauthorized" }
-        }
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" }
+        },
+        "security": [ { "default": [ "default" ] } ]
       },
       "post": {
         "tags": [ "Values" ],
         "operationId": "ApiValuesPost",
-        "consumes": [ "application/json", "text/json", "application/json-patch+json" ],
+        "consumes": [ "application/json-patch+json", "application/json", "text/json", "application/*+json" ],
         "produces": [],
         "parameters": [
           {
@@ -631,8 +665,10 @@
         ],
         "responses": {
           "200": { "description": "Success" },
-          "401": { "description": "Unauthorized" }
-        }
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" }
+        },
+        "security": [ { "default": [ "default" ] } ]
       }
     },
     "/api/Values/{id}": {
@@ -655,13 +691,15 @@
             "description": "Success",
             "schema": { "type": "string" }
           },
-          "401": { "description": "Unauthorized" }
-        }
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" }
+        },
+        "security": [ { "default": [ "default" ] } ]
       },
       "put": {
         "tags": [ "Values" ],
         "operationId": "ApiValuesByIdPut",
-        "consumes": [ "application/json", "text/json", "application/json-patch+json" ],
+        "consumes": [ "application/json-patch+json", "application/json", "text/json", "application/*+json" ],
         "produces": [],
         "parameters": [
           {
@@ -680,8 +718,10 @@
         ],
         "responses": {
           "200": { "description": "Success" },
-          "401": { "description": "Unauthorized" }
-        }
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" }
+        },
+        "security": [ { "default": [ "default" ] } ]
       },
       "delete": {
         "tags": [ "Values" ],
@@ -699,8 +739,10 @@
         ],
         "responses": {
           "200": { "description": "Success" },
-          "401": { "description": "Unauthorized" }
-        }
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" }
+        },
+        "security": [ { "default": [ "default" ] } ]
       }
     }
   },
@@ -742,36 +784,7 @@
         "translation": { "type": "string" }
       }
     },
-    "JsonPatchDocument[Company]": {
-      "type": "object",
-      "properties": {
-        "operations": {
-          "type": "array",
-          "items": { "$ref": "#/definitions/Operation[Company]" },
-          "readOnly": true
-        }
-      }
-    },
-    "Operation[Company]": {
-      "type": "object",
-      "properties": {
-        "value": { "type": "object" },
-        "path": { "type": "string" },
-        "op": { "type": "string" },
-        "from": { "type": "string" }
-      }
-    },
-    "JsonPatchDocument[Site]": {
-      "type": "object",
-      "properties": {
-        "operations": {
-          "type": "array",
-          "items": { "$ref": "#/definitions/Operation[Site]" },
-          "readOnly": true
-        }
-      }
-    },
-    "Operation[Site]": {
+    "Operation": {
       "type": "object",
       "properties": {
         "value": { "type": "object" },
