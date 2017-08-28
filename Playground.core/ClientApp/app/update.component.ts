@@ -7,8 +7,9 @@
 
 //npm install signalr-client --registry https://dotnet.myget.org/f/aspnetcore-ci-dev/npm/
 import {
-    HubConnection
-} from 'signalr-client';
+    HubConnection,
+    HttpConnection
+} from '@aspnet/signalr-client';
 
 @Component({
     selector: "update",
@@ -36,7 +37,7 @@ export class UpdateComponent {
     constructor() { 
         this.messages = [];
         
-        this.connection = new HubConnection(`http://${document.location.host}/updates`, 'formatType=json&format=text');
+        this.connection = new HubConnection(new HttpConnection(`http://${document.location.host}/updates`, 'formatType=json&format=text'));
 
         this.connection.on('Send', (message) => {
             this.messages.push(message);

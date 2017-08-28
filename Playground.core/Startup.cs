@@ -113,7 +113,7 @@ namespace Playground.core
                 options.OperationFilter<SecurityRequirementsOperationFilter>();
             });
 
-            services.AddSignalRCore();
+            services.AddSignalR();
 
             services.AddTransient<SeedService>();
         }
@@ -165,7 +165,7 @@ namespace Playground.core
 
             app.UseSignalR(routes =>
             {
-                routes.MapHub<UpdateHub>("/updates");
+                routes.MapHub<UpdateHub>("updates");
             });
         }
 

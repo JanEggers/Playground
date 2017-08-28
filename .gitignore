@@ -8,6 +8,7 @@
 **/obj
 *.user
 *.lock.json
+*-lock.json
 **/lib
 **/node_modules
 
