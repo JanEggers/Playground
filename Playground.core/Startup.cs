@@ -103,6 +103,7 @@ namespace Playground.core
                     TokenUrl = "/connect/token"
                 });
 
+                options.DocumentFilter<CustomSchemaFilter>();
                 options.OperationFilter<SecurityRequirementsOperationFilter>();
             });
 
