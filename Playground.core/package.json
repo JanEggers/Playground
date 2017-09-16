@@ -12,7 +12,7 @@
     "@angular/platform-browser-dynamic": "4.0.1",
     "@angular/router": "4.0.1",
     "@angular/upgrade": "4.0.1",
-    "@aspnet/signalr-client": "0.1.0-alpha1-26816",
+    "@aspnet/signalr-client": "1.0.0-alpha1-final",
     "@types/core-js": "0.9.41",
     "core-js": "2.4.1",
     "jsnlog": "2.22.1",
