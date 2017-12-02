@@ -15,8 +15,7 @@ using AutoMapper;
 namespace Playground.core.Controllers
 {
     //[Authorize]
-    //[EnableQuery]
-    [Route("odata/Companies")]
+    [EnableQuery]
     public class CompaniesController : EntityController<Company,int>
     {
         private IConfigurationProvider m_mapperConfig;
@@ -62,15 +61,13 @@ namespace Playground.core.Controllers
         }
 
         [Produces(typeof(Company))]
-        [HttpGet("{key}", Name = nameof(GetSingleCompany))]
-        public IActionResult GetSingleCompany(int key)
+        public IActionResult Get(int key)
         {
             return GetSingleEntity(key);
         }
         
         [Produces(typeof(IEnumerable<Site>))]
-        [HttpGet("{key}/Sites", Name = nameof(GetSitesOfCompany))]
-        public IActionResult GetSitesOfCompany(int key)
+        public IActionResult GetSites(int key)
         {
             return GetManyRelated(key, p => p.Sites);
         }
@@ -79,19 +76,17 @@ namespace Playground.core.Controllers
         [HttpPost]
         public IActionResult Post([FromBody]Company item)
         {
-            return PostEntity(item,nameof(GetSingleCompany));
+            return PostEntity(item);
         }
 
         [Produces(typeof(Company))]
-        [HttpPatch("{key}")]
-        public IActionResult Patch([FromQuery] int key, [FromBody]JsonPatchDocument<Company> patch)
+        public IActionResult Patch(int key, Delta<Company> delta)
         {
-            return PatchEntity(key, patch);
+            return PatchEntity(key, delta);
         }
 
         [Produces(typeof(void))]
-        [HttpDelete("{key}")]
-        public IActionResult Delete([FromQuery] int key)
+        public IActionResult Delete(int key)
         {
             return DeleteEntity(key);
         }

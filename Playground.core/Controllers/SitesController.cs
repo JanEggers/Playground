@@ -13,7 +13,6 @@ namespace Playground.core.Controllers
 {
     //[Authorize]
     [EnableQuery]
-    [Route("odata/Sites")]
     public class SitesController : EntityController<Site, int>  
     {
         public SitesController(PlaygroundContext ctx)
@@ -39,29 +38,32 @@ namespace Playground.core.Controllers
         }
 
         [Produces(typeof(Site))]
-        [HttpGet("{key}", Name = nameof(GetSingleSite))]
-        public IActionResult GetSingleSite([FromQuery] int key)
+        public IActionResult Get(int key)
         {
-            return GetSingleEntity( key );
+            return GetSingleEntity(key);
+        }
+
+        [Produces(typeof(Company))]
+        public IActionResult GetCompany(int key)
+        {
+            return GetSingleRelated(key, p => p.Company);
         }
 
         [Produces(typeof(Site))]
         [HttpPost]
         public IActionResult Post([FromBody]Site item)
         {
-            return PostEntity(item, nameof(GetSingleSite));
+            return PostEntity(item);
         }
 
         [Produces(typeof(Site))]
-        [HttpPatch("{key}")]
-        public IActionResult Patch([FromQuery] int key, [FromBody]JsonPatchDocument<Site> patch)
+        public IActionResult Patch(int key, Delta<Site> delta)
         {
-            return PatchEntity(key, patch);
+            return PatchEntity(key, delta);
         }
 
         [Produces(typeof(void))]
-        [HttpDelete("{key}")]
-        public IActionResult Delete([FromQuery] int key)
+        public IActionResult Delete(int key)
         {
             return DeleteEntity(key);
         }

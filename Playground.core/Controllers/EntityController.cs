@@ -7,10 +7,11 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.EntityFrameworkCore;
 using Playground.core.Models;
 using System.Collections.Generic;
+using Microsoft.AspNet.OData;
 
 namespace Playground.core.Controllers
 {
-    public abstract class EntityController<TEntity,TKey> : Controller
+    public abstract class EntityController<TEntity,TKey> : ODataController
         where TEntity : class
     {
         protected PlaygroundContext m_db;
@@ -21,16 +22,7 @@ namespace Playground.core.Controllers
             m_db = db;
             m_set = set;
         }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                m_db?.Dispose();
-            }
-            base.Dispose(disposing);
-        }
-
+        
         protected abstract Expression<Func<TEntity, bool>> Find(TKey key);
 
         protected abstract TKey GetKey(TEntity item);
@@ -51,20 +43,35 @@ namespace Playground.core.Controllers
             return Ok(item);
         }
 
-        protected IActionResult GetManyRelated<TRelated>(TKey key, Expression<Func<TEntity, IEnumerable<TRelated>>> selector )
+        protected IActionResult GetSingleRelated<TRelated>(TKey key, Expression<Func<TEntity, TRelated>> selector)
+            where TRelated : class
         {
-            //var item = m_set.Where(Find(key)).AsNoTracking().FirstOrDefault();
-            //if (item == null)
-            //{
-            //    return NotFound();
-            //}
+            var item = m_set.Where(Find(key)).AsNoTracking().FirstOrDefault();
+            if (item == null)
+            {
+                return NotFound();
+            }
 
-            var items = m_set.Where(Find(key)).SelectMany(selector).ToList();
+            var items = m_set.Where(Find(key)).Select(selector).AsNoTracking().ToList();
 
             return Ok(items);
         }
 
-        protected IActionResult PostEntity(TEntity item, string routeName)
+        protected IActionResult GetManyRelated<TRelated>(TKey key, Expression<Func<TEntity, IEnumerable<TRelated>>> selector)
+            where TRelated : class
+        {
+            var item = m_set.Where(Find(key)).AsNoTracking().FirstOrDefault();
+            if (item == null)
+            {
+                return NotFound();
+            }
+
+            var items = m_set.Where(Find(key)).SelectMany(selector).AsNoTracking().ToList();
+
+            return Ok(items);
+        }
+
+        protected IActionResult PostEntity(TEntity item)
         {
             if (!ModelState.IsValid)
             {
@@ -74,27 +81,27 @@ namespace Playground.core.Controllers
             m_set.Add(item);
             m_db.SaveChanges();
 
-            return CreatedAtRoute(routeName, new { key = GetKey(item) }, item);
+            return Created(item);
         }
         
-        protected IActionResult PatchEntity(TKey key, [FromBody]JsonPatchDocument<TEntity> patch)
+        protected IActionResult PatchEntity(TKey key, Delta<TEntity> delta)
         {
-            var item = m_set.Where(Find(key)).FirstOrDefault();
-            if (item == null)
-            {
-                return NotFound();
-            }
-            
-            patch.ApplyTo(item, ModelState);
-
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
+            var item = m_set.Where(Find(key)).FirstOrDefault();
+            if (item == null)
+            {
+                return NotFound();
+            }
+
+            delta.Patch(item);            
+
             m_db.SaveChanges();
             
-            return Ok(item);
+            return Updated(item);
         }
         
         protected IActionResult DeleteEntity(TKey key)

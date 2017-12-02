@@ -163,7 +163,7 @@ namespace Playground.core
 
                 builder.MapRoute("default", "api/{controller}/{action}");
             } );
-
+            
             app.UseSwagger();
 
             app.UseSwaggerUI(c =>
