@@ -15,7 +15,7 @@ using AutoMapper;
 namespace Playground.core.Controllers
 {
     //[Authorize]
-    [EnableQuery]
+    //[EnableQuery]
     [Route("odata/Companies")]
     public class CompaniesController : EntityController<Company,int>
     {

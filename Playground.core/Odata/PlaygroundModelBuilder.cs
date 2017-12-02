@@ -1,25 +1,17 @@
 ﻿using Microsoft.AspNet.OData.Builder;
-using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.OData.Edm;
 using Playground.core.Models;
+using System;
 
 namespace Playground.core.Odata
 {
-    public class PlaygroundModelBuilder
+    public class PlaygroundModelBuilder : ODataConventionModelBuilder
     {
-        private readonly ApplicationPartManager m_applicationPartManager;
-        public PlaygroundModelBuilder(ApplicationPartManager applicationPartsManager)
+        public PlaygroundModelBuilder(IServiceProvider serviceProvider)
+           : base(serviceProvider)
         {
-            m_applicationPartManager = applicationPartsManager;
-        }
-
-        public IEdmModel GetEdmModel()
-        {
-            var builder = new ODataConventionModelBuilder(m_applicationPartManager);
-            builder.EntitySet<Company>(nameof(PlaygroundContext.Companies));
-            builder.EntitySet<Site>(nameof(PlaygroundContext.Sites));
-            
-            return builder.GetEdmModel();
+            EntitySet<Company>(nameof(PlaygroundContext.Companies));
+            EntitySet<Site>(nameof(PlaygroundContext.Sites));
         }
     }
 }

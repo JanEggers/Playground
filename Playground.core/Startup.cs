@@ -157,7 +157,10 @@ namespace Playground.core
             app.UseStaticFiles();
             
             app.UseMvc( builder => {
-                builder.MapODataServiceRoute("odata", "odata", app.ApplicationServices.GetRequiredService<PlaygroundModelBuilder>().GetEdmModel() );
+
+                var edmModel = app.ApplicationServices.GetRequiredService<PlaygroundModelBuilder>().GetEdmModel();
+                builder.MapODataServiceRoute("odata", "odata", edmModel);
+
                 builder.MapRoute("default", "api/{controller}/{action}");
             } );
 
