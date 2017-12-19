@@ -3,7 +3,6 @@ using System.Linq.Expressions;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.JsonPatch;
 
 using Playground.core.Models;
 using AutoMapper.QueryableExtensions;
@@ -36,6 +35,10 @@ namespace Playground.core.Controllers
             return item.Id;
         }
 
+        /// <summary>
+        /// Companies?$filter=Name eq 'C700'
+        /// </summary>
+        /// <returns></returns>
         [Produces(typeof(IEnumerable<Company>))]
         [HttpGet]
         public IActionResult Get()
