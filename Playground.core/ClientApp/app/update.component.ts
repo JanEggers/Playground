@@ -8,7 +8,8 @@
 //npm install signalr-client --registry https://dotnet.myget.org/f/aspnetcore-ci-dev/npm/
 import {
     HubConnection,
-    HttpConnection
+    HttpConnection,
+    TransportType
 } from '@aspnet/signalr-client';
 
 @Component({
@@ -22,6 +23,7 @@ import {
 
 <input type="text" [(ngModel)]="message" >
 <button (click)="send()">send!</button>
+<p *ngIf="error" >{{error}}</p>
 `,
 })
 @Injectable()
@@ -34,20 +36,23 @@ export class UpdateComponent {
 
     error;
 
+    start: Promise<void>;
+
     constructor() { 
         this.messages = [];
-        
-        this.connection = new HubConnection(new HttpConnection(`http://${document.location.host}/updates`, 'formatType=json&format=text'));
+
+        this.connection = new HubConnection(`http://${document.location.host}/updates`, { transport: TransportType.WebSockets });
 
         this.connection.on('Send', (message) => {
             this.messages.push(message);
         });
 
-        this.connection.start();
+        this.start = this.connection.start();
     }
 
     async send() {
         try {
+            await this.start;
             this.error = "";
             await this.connection.invoke('Send', this.message);
             this.message = "";
