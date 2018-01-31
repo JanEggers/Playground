@@ -1,11 +1,10 @@
-﻿import { ModuleWithProviders }  from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
+﻿import { Routes } from './vendor';
 
 import { LoginComponent }       from './login.component';
-import { RegisterComponent } from './register.component';
-import { UpdateComponent } from './update.component';
+import { RegisterComponent }    from './register.component';
+import { UpdateComponent }      from './update.component';
 
-const appRoutes: Routes = [
+export const routes: Routes = [
     {
         path: 'login',
         component: LoginComponent
@@ -24,5 +23,3 @@ const appRoutes: Routes = [
         pathMatch: 'full'
     },
 ];
-
-export const routing: ModuleWithProviders = RouterModule.forRoot(appRoutes);

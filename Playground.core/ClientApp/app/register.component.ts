@@ -19,10 +19,8 @@
 <button (click)="login()" >Register</button>
 
 <p *ngIf="error" >{{error}}</p>
-`,
+`
 })
-
-@Injectable()
 export class RegisterComponent {
 
     constructor(private http: Http) {

@@ -20,13 +20,11 @@
 <button (click)="login()" >Login</button>
 
 <p *ngIf="error" >{{error}}</p>
-`,
+`
 })
-
-@Injectable()
 export class LoginComponent {
 
-    constructor(private http: Http) {
+    constructor(public http: Http) {
         this.user = "someone";
         this.password = "pass";
     }

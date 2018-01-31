@@ -23,9 +23,8 @@
 <input type="text" [(ngModel)]="message" >
 <button (click)="send()">send!</button>
 <p *ngIf="error" >{{error}}</p>
-`,
+`
 })
-@Injectable()
 export class UpdateComponent {
     connection: HubConnection;
 

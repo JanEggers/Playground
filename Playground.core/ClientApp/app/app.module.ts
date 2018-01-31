@@ -4,11 +4,13 @@
     HashLocationStrategy,
     FormsModule,
     HttpModule,
+    BrowserModule,
+    RouterModule,
 } from "./vendor";
 
-import { BrowserModule } from '@angular/platform-browser';
-import { AppComponent }   from './app.component';
-import { routing } from './app.routing';
+import { routes } from './app.routing';
+
+import { AppComponent } from './app.component';
 import { LoginComponent } from "./login.component";
 import { RegisterComponent } from "./register.component";
 import { UpdateComponent } from "./update.component";
@@ -18,7 +20,7 @@ import { UpdateComponent } from "./update.component";
         BrowserModule,
         FormsModule,
         HttpModule,
-        routing
+        RouterModule.forRoot(routes)
     ],
     declarations: [
         AppComponent,

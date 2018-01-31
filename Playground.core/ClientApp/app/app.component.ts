@@ -13,6 +13,5 @@
    <router-outlet></router-outlet>
 `,
 })
-
 export class AppComponent {
 }
