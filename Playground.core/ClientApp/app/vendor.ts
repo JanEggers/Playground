@@ -19,6 +19,12 @@ export {
     HttpModule
 } from '@angular/http';
 
+export {
+    HubConnection,
+    HttpConnection,
+    TransportType
+} from '@aspnet/signalr';
+
 export * from 'rxjs';
 
 //export * from "jsnlog";

@@ -19,7 +19,7 @@ namespace Playground.core.Hubs
 
         public async Task Send(string message)
         {
-            await Clients.All.InvokeAsync("Send", message);            
+            await Clients.All.SendAsync("Send", message);            
         }
     }
 }

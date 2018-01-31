@@ -3,14 +3,13 @@
     Injectable,
     Http,
     Headers,
+    HubConnection,
+    HttpConnection,
+    TransportType,
 } from "./vendor";
 
 //npm install signalr-client --registry https://dotnet.myget.org/f/aspnetcore-ci-dev/npm/
-import {
-    HubConnection,
-    HttpConnection,
-    TransportType
-} from '@aspnet/signalr-client';
+
 
 @Component({
     selector: "update",
