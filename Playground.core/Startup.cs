@@ -22,7 +22,7 @@ using Serilog;
 using Serilog.Events;
 
 using Swashbuckle.AspNetCore.Swagger;
-
+using MQTTnet.Serializer;
 
 namespace Playground.core
 {
@@ -116,6 +116,10 @@ namespace Playground.core
             services.AddSignalR();
 
             services.AddTransient<SeedService>();
+
+            services.AddSingleton(typeof(MyHubConnectionHandler<,>), typeof(MyHubConnectionHandler<,>));
+            services.AddSingleton<MqttHubProtocol>();
+            services.AddSingleton<MqttPacketSerializer>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
