@@ -28,8 +28,20 @@ namespace Playground.core.Hubs
         }
 
 
-        public void OnPublish(MqttPublishPacket publish)
+        public MqttBasePacket OnPublish(MqttPublishPacket publish)
         {
+            return new MqttPubAckPacket()
+            {
+                PacketIdentifier = publish.PacketIdentifier,
+
+            };
+        }
+
+        public MqttBasePacket OnPing(MqttPingReqPacket ping)
+        {
+            return new MqttPingRespPacket()
+            {
+            };
         }
 
         public IObservable<MqttBasePacket> OnSubscribe(IObservable<MqttPublishPacket> packets, MqttSubscribePacket sub)

@@ -62,10 +62,7 @@ namespace MQTTnet.Serializer
                 using (var body = new MemoryStream(copy.Slice(0, header.BodyLength).ToArray()))
                 using (var reader = new MqttPacketReader(header, body))
                 {
-                    if (header.BodyLength > 0)
-                    {
-                        input = copy.Slice(header.BodyLength);
-                    }
+                    input = copy.Slice(header.BodyLength);
                     return Deserialize(header, reader);
                 }
             }

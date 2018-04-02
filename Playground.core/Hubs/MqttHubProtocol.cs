@@ -58,6 +58,10 @@ namespace Playground.core.Hubs
                         _packets.OnNext(publish);
                         message = new InvocationMessage(invokation, nameof(MqttHub.OnPublish), null, publish);
                         break;
+                    case MqttPingReqPacket ping:
+                        _logger.LogInformation($"ping {invokation}");
+                        message = new InvocationMessage(invokation, nameof(MqttHub.OnPing), null, ping);
+                        break;
                     case MqttSubscribePacket subscribe:
                         _logger.LogInformation($"subscribe {invokation} {string.Join(", ", subscribe.TopicFilters.Select(t => t.Topic))}");
                         message = new StreamInvocationMessage(invokation, nameof(MqttHub.OnSubscribe), null, _packets, subscribe);
