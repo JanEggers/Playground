@@ -113,7 +113,7 @@ namespace Playground.core
 
             services.AddTransient<SeedService>();
 
-            services.AddSingleton(typeof(MyHubConnectionHandler<,>), typeof(MyHubConnectionHandler<,>));
+            services.AddSingleton(typeof(MqttHubConnectionHandler<>), typeof(MqttHubConnectionHandler<>));
             services.AddSingleton<MqttHubProtocol>();
             services.AddSingleton<MqttPacketSerializer>();
         }

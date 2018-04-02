@@ -5,41 +5,52 @@ using Microsoft.AspNetCore.SignalR.Internal;
 using Microsoft.AspNetCore.SignalR.Internal.Protocol;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using MQTTnet.Packets;
+using MQTTnet.Protocol;
+using MQTTnet.Serializer;
+using MQTTnet.Server;
 using System;
+using System.Linq;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Threading.Tasks;
 
 namespace Playground.core.Hubs
 {
-    public class MyHubConnectionHandler<THub, TProtocol> : ConnectionHandler 
+    public class MqttHubConnectionHandler<THub> : ConnectionHandler 
         where THub : Hub
-        where TProtocol : IHubProtocol
     {
         private readonly HubLifetimeManager<THub> _lifetimeManager;
         private readonly ILoggerFactory _loggerFactory;
-        private readonly ILogger<HubConnectionHandler<THub>> _logger;
+        private readonly ILogger<MqttHubConnectionHandler<THub>> _logger;
         private readonly HubOptions<THub> _hubOptions;
         private readonly HubOptions _globalHubOptions;
         private readonly IUserIdProvider _userIdProvider;
         private readonly HubDispatcher<THub> _dispatcher;
-        private readonly TProtocol _protocol;
+        private readonly MqttHubProtocol _protocol;
+        private readonly MqttPacketSerializer _serializer;
         private readonly bool _enableDetailedErrors;
+        
+        private Subject<MqttPublishPacket> _packets = new Subject<MqttPublishPacket>();
 
-        public MyHubConnectionHandler(HubLifetimeManager<THub> lifetimeManager,
+        public MqttHubConnectionHandler(HubLifetimeManager<THub> lifetimeManager,
                                     IOptions<HubOptions> globalHubOptions,
                                     IOptions<HubOptions<THub>> hubOptions,
                                     ILoggerFactory loggerFactory,
                                     IUserIdProvider userIdProvider,
                                     HubDispatcher<THub> dispatcher,
-                                    TProtocol protocol)
+                                    MqttHubProtocol protocol,
+                                    MqttPacketSerializer serializer)
         {
             _lifetimeManager = lifetimeManager;
             _loggerFactory = loggerFactory;
             _hubOptions = hubOptions.Value;
             _globalHubOptions = globalHubOptions.Value;
-            _logger = loggerFactory.CreateLogger<HubConnectionHandler<THub>>();
+            _logger = loggerFactory.CreateLogger<MqttHubConnectionHandler<THub>>();
             _userIdProvider = userIdProvider;
             _dispatcher = dispatcher;
             _protocol = protocol;
+            _serializer = serializer;
             _enableDetailedErrors = false;
         }
 
@@ -50,7 +61,7 @@ namespace Playground.core.Hubs
             var keepAlive = _hubOptions.KeepAliveInterval ?? _globalHubOptions.KeepAliveInterval ?? TimeSpan.FromSeconds(5);
             var handshakeTimeout = _hubOptions.HandshakeTimeout ?? _globalHubOptions.HandshakeTimeout ?? TimeSpan.FromSeconds(10);
             
-            var connectionContext = new HubConnectionContext(connection, keepAlive, _loggerFactory);
+            var connectionContext = new MqttHubConnectionContext(connection, keepAlive, _loggerFactory);
 
             var p = connectionContext.GetType().GetProperty("Protocol", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
 
@@ -67,7 +78,7 @@ namespace Playground.core.Hubs
             }
         }
 
-        private async Task RunHubAsync(HubConnectionContext connection)
+        private async Task RunHubAsync(MqttHubConnectionContext connection)
         {
             try
             {
@@ -149,7 +160,7 @@ namespace Playground.core.Hubs
             }
         }
 
-        private async Task DispatchMessagesAsync(HubConnectionContext connection)
+        private async Task DispatchMessagesAsync(MqttHubConnectionContext connection)
         {
             // Since we dispatch multiple hub invocations in parallel, we need a way to communicate failure back to the main processing loop.
             // This is done by aborting the connection.
@@ -165,11 +176,9 @@ namespace Playground.core.Hubs
                     {
                         if (!buffer.IsEmpty)
                         {
-                            while (_protocol.TryParseMessage(ref buffer, _dispatcher, out var message))
+                            while (_serializer.Deserialize(ref buffer, out var packet))
                             {
-                                // Don't wait on the result of execution, continue processing other
-                                // incoming messages on this connection.
-                                _ = _dispatcher.DispatchMessageAsync(connection, message);
+                                HandleMqttPacket(connection, packet);
                             }
                         }
                         else if (result.IsCompleted)
@@ -191,6 +200,106 @@ namespace Playground.core.Hubs
                 // If there's an exception, bubble it to the caller
                 //connection.AbortException?.Throw();
             }
+        }
+
+        private void HandleMqttPacket(MqttHubConnectionContext connection, MqttBasePacket packet) 
+        {
+            switch (packet)
+            {
+                case MqttConnectPacket connect:
+                    OnConnect(connection, connect);
+                    break;
+                case MqttPublishPacket publish:
+                    OnPublish(connection, publish);
+                    break;
+                case MqttPingReqPacket ping:
+                    OnPing(connection, ping);
+                    break;
+                case MqttSubscribePacket subscribe:
+                    OnSubscribe(connection, subscribe);
+                    break;
+                case null:
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        public void OnConnect(MqttHubConnectionContext connection, MqttConnectPacket connect)
+        {
+            if (_logger.IsEnabled(LogLevel.Information))
+            {
+                _logger.LogInformation($"connect");
+            }
+
+            connection.WriteAsync(new MqttConnAckPacket()
+            {
+                ConnectReturnCode = MqttConnectReturnCode.ConnectionAccepted
+            });
+        }
+
+
+        public void OnPublish(MqttHubConnectionContext connection, MqttPublishPacket publish)
+        {
+            if (_logger.IsEnabled(LogLevel.Information))
+            {
+                _logger.LogInformation($"publish {publish.Topic}");
+            }
+
+            _packets.OnNext(publish);
+
+            if (publish.QualityOfServiceLevel == MqttQualityOfServiceLevel.AtMostOnce)
+            {
+                return;
+            }
+
+            connection.WriteAsync(new MqttPubAckPacket()
+            {
+                PacketIdentifier = publish.PacketIdentifier,
+            });
+        }
+
+        public void OnPing(MqttHubConnectionContext connection, MqttPingReqPacket ping)
+        {
+            if (_logger.IsEnabled(LogLevel.Information))
+            {
+                _logger.LogInformation($"ping");
+            }
+            connection.WriteAsync(new MqttPingRespPacket()
+            {
+            });
+        }
+
+        public async Task OnSubscribe(MqttHubConnectionContext connection, MqttSubscribePacket subscribe)
+        {
+            if (_logger.IsEnabled(LogLevel.Information))
+            {
+                _logger.LogInformation($"subscribe {string.Join(", ", subscribe.TopicFilters.Select(t => t.Topic))}");
+            }
+
+            var ack = new MqttSubAckPacket()
+            {
+                PacketIdentifier = subscribe.PacketIdentifier,
+            };
+
+            foreach (var topic in subscribe.TopicFilters)
+            {
+                ack.SubscribeReturnCodes.Add(MqttSubscribeReturnCode.SuccessMaximumQoS0);
+            }
+
+            await connection.WriteAsync(ack);
+
+            var filteredPublishPackets = _packets
+                //.Do(p => logger.LogInformation($"publish {p.Topic}"))
+                .Where(p =>
+                {
+                    var result = subscribe.TopicFilters.Any(f => MqttTopicFilterComparer.IsMatch(p.Topic, f.Topic));
+
+                    // logger.LogInformation($"filter {p.Topic}: {result}");
+
+                    return result;
+                })
+                .Do(p => connection.WriteAsync(p));
         }
 
         private static class Log

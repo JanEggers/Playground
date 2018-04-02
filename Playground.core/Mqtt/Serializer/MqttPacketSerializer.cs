@@ -43,22 +43,19 @@ namespace MQTTnet.Serializer
             }
         }
 
-        public MqttBasePacket Deserialize(ref ReadOnlySequence<byte> input)
+        public bool Deserialize(ref ReadOnlySequence<byte> input, out MqttBasePacket packet)
         {
+            packet = null;
             var copy = input;
             var header = copy.ReadHeader();
-            if (header == null)
+            if (header == null || copy.Length < header.BodyLength)
             {
-                return null;
-            }
-
-            if (copy.Length < header.BodyLength) 
-            {
-                return null;
+                return false;
             }
 
             input = copy.Slice(header.BodyLength);
-            return Deserialize(header, copy.Slice(0, header.BodyLength).First.Span);
+            packet = Deserialize(header, copy.Slice(0, header.BodyLength).First.Span);
+            return true;
         }
 
         private byte SerializePacket(MqttBasePacket packet, MqttPacketWriter writer)

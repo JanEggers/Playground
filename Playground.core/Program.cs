@@ -21,7 +21,7 @@ namespace Playground.core
 
 
                     //o.ListenAnyIP(1883, l => l.UseHub<MqttHub>());
-                    o.ListenAnyIP(1883, l => l.UseConnectionHandler<MyHubConnectionHandler<MqttHub, MqttHubProtocol>>());
+                    o.ListenAnyIP(1883, l => l.UseConnectionHandler<MqttHubConnectionHandler<MqttHub>>());
                 })
                 .UseIISIntegration()
                 .UseContentRoot(Directory.GetCurrentDirectory())

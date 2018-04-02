@@ -1,8 +1,5 @@
-﻿using System;
-using System.Buffers;
-using System.Collections.Generic;
+﻿using System.Buffers;
 using System.IO;
-using System.Linq;
 using System.Reactive.Subjects;
 using Microsoft.AspNetCore.Connections;
 using Microsoft.AspNetCore.SignalR.Internal;
@@ -20,7 +17,7 @@ namespace Playground.core.Hubs
 
         public string Name => "MQTT";
 
-        public int Version => 123;
+        public int Version => 311;
 
         public TransferFormat TransferFormat => TransferFormat.Binary;
 
@@ -32,59 +29,15 @@ namespace Playground.core.Hubs
 
         public bool IsVersionSupported(int version)
         {
-            return true;
+            return version == Version;
         }
 
         private Subject<MqttPublishPacket> _packets = new Subject<MqttPublishPacket>();
         
         public bool TryParseMessage(ref ReadOnlySequence<byte> input, IInvocationBinder binder, out HubMessage message)
         {
-            MqttBasePacket packet;
             message = null;
-            do
-            {
-                packet = _serializer.Deserialize(ref input);
-
-                var invokation = Guid.NewGuid().ToString();
-                
-                switch (packet)
-                {
-                    case MqttConnectPacket connect:
-                        if (_logger.IsEnabled(LogLevel.Information))
-                        {
-                            _logger.LogInformation($"connect {invokation}");
-                        }
-                        message = new InvocationMessage(invokation, nameof(MqttHub.Connect), null, connect);
-                        break;
-                    case MqttPublishPacket publish:
-                        if (_logger.IsEnabled(LogLevel.Information))
-                        {
-                            _logger.LogInformation($"publish {invokation} {publish.Topic}");
-                        }
-                        _packets.OnNext(publish);
-                        message = new InvocationMessage(invokation, nameof(MqttHub.OnPublish), null, publish);
-                        break;
-                    case MqttPingReqPacket ping:
-                        if (_logger.IsEnabled(LogLevel.Information))
-                        {
-                            _logger.LogInformation($"ping {invokation}");
-                        }
-                        message = new InvocationMessage(invokation, nameof(MqttHub.OnPing), null, ping);
-                        break;
-                    case MqttSubscribePacket subscribe:
-                        if (_logger.IsEnabled(LogLevel.Information))
-                        {
-                            _logger.LogInformation($"subscribe {invokation} {string.Join(", ", subscribe.TopicFilters.Select(t => t.Topic))}");
-                        }
-                        message = new StreamInvocationMessage(invokation, nameof(MqttHub.OnSubscribe), null, _packets, subscribe);
-                        break;
-                    case null:
-                        break;
-                    default:
-                        break;
-                }
-            } while (message == null && packet != null);
-            return message != null;
+            return false;
         }
 
         public void WriteMessage(HubMessage message, Stream output)
