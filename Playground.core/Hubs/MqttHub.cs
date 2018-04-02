@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using MQTTnet.Packets;
 using System;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 
 namespace Playground.core.Hubs
@@ -18,6 +19,11 @@ namespace Playground.core.Hubs
 
         public void OnPublish(MqttPublishPacket publish)
         {
+        }
+
+        public IObservable<object> OnSubscribe(MqttSubscribePacket sub)
+        {
+            return Observable.Return<object>(null);
         }
 
         public override Task OnConnectedAsync()
