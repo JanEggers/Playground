@@ -45,6 +45,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="2.1.0-preview3-32096" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="2.1.0-preview3-32096" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Configuration" Version="2.1.0-preview3-32096" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.1.0-preview3-32096" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.0.0" />
     <PackageReference Include="OpenIddict" Version="2.0.0-preview1-0648" />

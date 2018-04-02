@@ -46,24 +46,36 @@ namespace Playground.core.Hubs
                 packet = _serializer.Deserialize(ref input);
 
                 var invokation = Guid.NewGuid().ToString();
-
+                
                 switch (packet)
                 {
                     case MqttConnectPacket connect:
-                        _logger.LogInformation($"connect {invokation}");
+                        if (_logger.IsEnabled(LogLevel.Information))
+                        {
+                            _logger.LogInformation($"connect {invokation}");
+                        }
                         message = new InvocationMessage(invokation, nameof(MqttHub.Connect), null, connect);
                         break;
                     case MqttPublishPacket publish:
-                        _logger.LogInformation($"publish {invokation} {publish.Topic}");
+                        if (_logger.IsEnabled(LogLevel.Information))
+                        {
+                            _logger.LogInformation($"publish {invokation} {publish.Topic}");
+                        }
                         _packets.OnNext(publish);
                         message = new InvocationMessage(invokation, nameof(MqttHub.OnPublish), null, publish);
                         break;
                     case MqttPingReqPacket ping:
-                        _logger.LogInformation($"ping {invokation}");
+                        if (_logger.IsEnabled(LogLevel.Information))
+                        {
+                            _logger.LogInformation($"ping {invokation}");
+                        }
                         message = new InvocationMessage(invokation, nameof(MqttHub.OnPing), null, ping);
                         break;
                     case MqttSubscribePacket subscribe:
-                        _logger.LogInformation($"subscribe {invokation} {string.Join(", ", subscribe.TopicFilters.Select(t => t.Topic))}");
+                        if (_logger.IsEnabled(LogLevel.Information))
+                        {
+                            _logger.LogInformation($"subscribe {invokation} {string.Join(", ", subscribe.TopicFilters.Select(t => t.Topic))}");
+                        }
                         message = new StreamInvocationMessage(invokation, nameof(MqttHub.OnSubscribe), null, _packets, subscribe);
                         break;
                     case null:
@@ -80,15 +92,24 @@ namespace Playground.core.Hubs
             switch (message)
             {
                 case CompletionMessage completion:
-                    _logger.LogInformation($"complete {completion.InvocationId}");
+                    if (_logger.IsEnabled(LogLevel.Information)) 
+                    {
+                        _logger.LogInformation($"complete {completion.InvocationId}");
+                    }
                     WriteCompletionMessage(completion, output);
                     break;
                 case StreamItemMessage streamItem:
-                    _logger.LogInformation($"streamItem {streamItem.InvocationId}");
+                    if (_logger.IsEnabled(LogLevel.Information))
+                    {
+                        _logger.LogInformation($"streamItem {streamItem.InvocationId}");
+                    }
                     WriteStreamMessage(streamItem, output);
                     break;
                 case CloseMessage close:
-                    _logger.LogInformation($"close");
+                    if (_logger.IsEnabled(LogLevel.Information))
+                    {
+                        _logger.LogInformation($"close");
+                    }
                     WriteMqttPacket(new MqttDisconnectPacket() { }, output);
                     break;
                 default:

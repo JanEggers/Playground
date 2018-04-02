@@ -46,7 +46,7 @@ namespace MQTTnet.Serializer
         public MqttBasePacket Deserialize(ref ReadOnlySequence<byte> input)
         {
             var copy = input;
-            var header = MqttPacketReader.ReadHeader(ref copy);
+            var header = copy.ReadHeader();
             if (header == null)
             {
                 return null;
@@ -57,20 +57,8 @@ namespace MQTTnet.Serializer
                 return null;
             }
 
-            try
-            {
-                using (var body = new MemoryStream(copy.Slice(0, header.BodyLength).ToArray()))
-                using (var reader = new MqttPacketReader(header, body))
-                {
-                    input = copy.Slice(header.BodyLength);
-                    return Deserialize(header, reader);
-                }
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
+            input = copy.Slice(header.BodyLength);
+            return Deserialize(header, copy.Slice(0, header.BodyLength).First.Span);
         }
 
         private byte SerializePacket(MqttBasePacket packet, MqttPacketWriter writer)
@@ -95,113 +83,116 @@ namespace MQTTnet.Serializer
             }
         }
 
-        private MqttBasePacket Deserialize(MqttPacketHeader header, MqttPacketReader reader)
+        private MqttBasePacket Deserialize(MqttPacketHeader header, in ReadOnlySpan<byte> body)
         {
             switch (header.ControlPacketType)
             {
-                case MqttControlPacketType.Connect: return DeserializeConnect(reader);
-                case MqttControlPacketType.ConnAck: return DeserializeConnAck(reader);
+                case MqttControlPacketType.Connect: return DeserializeConnect(body);
+                case MqttControlPacketType.ConnAck: return DeserializeConnAck(body);
                 case MqttControlPacketType.Disconnect: return new MqttDisconnectPacket();
-                case MqttControlPacketType.Publish: return DeserializePublish(reader, header);
-                case MqttControlPacketType.PubAck: return DeserializePubAck(reader);
-                case MqttControlPacketType.PubRec: return DeserializePubRec(reader);
-                case MqttControlPacketType.PubRel: return DeserializePubRel(reader);
-                case MqttControlPacketType.PubComp: return DeserializePubComp(reader);
+                case MqttControlPacketType.Publish: return DeserializePublish(body, header);
+                case MqttControlPacketType.PubAck: return DeserializePubAck(body);
+                case MqttControlPacketType.PubRec: return DeserializePubRec(body);
+                case MqttControlPacketType.PubRel: return DeserializePubRel(body);
+                case MqttControlPacketType.PubComp: return DeserializePubComp(body);
                 case MqttControlPacketType.PingReq: return new MqttPingReqPacket();
                 case MqttControlPacketType.PingResp: return new MqttPingRespPacket();
-                case MqttControlPacketType.Subscribe: return DeserializeSubscribe(reader);
-                case MqttControlPacketType.SubAck: return DeserializeSubAck(reader);
-                case MqttControlPacketType.Unsubscibe: return DeserializeUnsubscribe(reader);
-                case MqttControlPacketType.UnsubAck: return DeserializeUnsubAck(reader);
+                case MqttControlPacketType.Subscribe: return DeserializeSubscribe(body);
+                case MqttControlPacketType.SubAck: return DeserializeSubAck(body);
+                case MqttControlPacketType.Unsubscibe: return DeserializeUnsubscribe(body);
+                case MqttControlPacketType.UnsubAck: return DeserializeUnsubAck(body);
                 default: throw new MqttProtocolViolationException($"Packet type ({(int)header.ControlPacketType}) not supported.");
             }
         }
 
-        private static MqttBasePacket DeserializeUnsubAck(MqttPacketReader reader)
+        private static MqttBasePacket DeserializeUnsubAck(in ReadOnlySpan<byte> body)
         {
             return new MqttUnsubAckPacket
             {
-                PacketIdentifier = reader.ReadUInt16()
+                PacketIdentifier = body.ReadUInt16()
             };
         }
 
-        private static MqttBasePacket DeserializePubComp(MqttPacketReader reader)
+        private static MqttBasePacket DeserializePubComp(in ReadOnlySpan<byte> body)
         {
             return new MqttPubCompPacket
             {
-                PacketIdentifier = reader.ReadUInt16()
+                PacketIdentifier = body.ReadUInt16()
             };
         }
 
-        private static MqttBasePacket DeserializePubRel(MqttPacketReader reader)
+        private static MqttBasePacket DeserializePubRel(in ReadOnlySpan<byte> body)
         {
             return new MqttPubRelPacket
             {
-                PacketIdentifier = reader.ReadUInt16()
+                PacketIdentifier = body.ReadUInt16()
             };
         }
 
-        private static MqttBasePacket DeserializePubRec(MqttPacketReader reader)
+        private static MqttBasePacket DeserializePubRec(in ReadOnlySpan<byte> body)
         {
             return new MqttPubRecPacket
             {
-                PacketIdentifier = reader.ReadUInt16()
+                PacketIdentifier = body.ReadUInt16()
             };
         }
 
-        private static MqttBasePacket DeserializePubAck(MqttPacketReader reader)
+        private static MqttBasePacket DeserializePubAck(in ReadOnlySpan<byte> body)
         {
             return new MqttPubAckPacket
             {
-                PacketIdentifier = reader.ReadUInt16()
+                PacketIdentifier = body.ReadUInt16()
             };
         }
 
-        private static MqttBasePacket DeserializeUnsubscribe(MqttPacketReader reader)
+        private static MqttBasePacket DeserializeUnsubscribe(in ReadOnlySpan<byte> body)
         {
+            var position = 0;
             var packet = new MqttUnsubscribePacket
             {
-                PacketIdentifier = reader.ReadUInt16(),
+                PacketIdentifier = body.ReadUInt16(ref position),
             };
 
-            while (!reader.EndOfRemainingData)
+            while (position < body.Length)
             {
-                packet.TopicFilters.Add(reader.ReadStringWithLengthPrefix());
+                packet.TopicFilters.Add(body.ReadStringWithLengthPrefix(ref position));
             }
 
             return packet;
         }
 
-        private static MqttBasePacket DeserializeSubscribe(MqttPacketReader reader)
+        private static MqttBasePacket DeserializeSubscribe(in ReadOnlySpan<byte> body)
         {
+            var position = 0;
             var packet = new MqttSubscribePacket
             {
-                PacketIdentifier = reader.ReadUInt16()
+                PacketIdentifier = body.ReadUInt16(ref position)
             };
 
-            while (!reader.EndOfRemainingData)
+            while (position < body.Length)
             {
                 packet.TopicFilters.Add(new TopicFilter(
-                    reader.ReadStringWithLengthPrefix(),
-                    (MqttQualityOfServiceLevel)reader.ReadByte()));
+                    body.ReadStringWithLengthPrefix(ref position),
+                    (MqttQualityOfServiceLevel)body.ReadByte(ref position)));
             }
 
             return packet;
         }
 
-        private static MqttBasePacket DeserializePublish(MqttPacketReader reader, MqttPacketHeader mqttPacketHeader)
+        private static MqttBasePacket DeserializePublish(in ReadOnlySpan<byte> body, MqttPacketHeader mqttPacketHeader)
         {
             var fixedHeader = new ByteReader(mqttPacketHeader.FixedHeader);
             var retain = fixedHeader.Read();
             var qualityOfServiceLevel = (MqttQualityOfServiceLevel)fixedHeader.Read(2);
             var dup = fixedHeader.Read();
 
-            var topic = reader.ReadStringWithLengthPrefix();
+            var position = 0;
+            var topic = body.ReadStringWithLengthPrefix(ref position);
 
             ushort packetIdentifier = 0;
             if (qualityOfServiceLevel > MqttQualityOfServiceLevel.AtMostOnce)
             {
-                packetIdentifier = reader.ReadUInt16();
+                packetIdentifier = body.ReadUInt16(ref position);
             }
 
             var packet = new MqttPublishPacket
@@ -210,22 +201,23 @@ namespace MQTTnet.Serializer
                 QualityOfServiceLevel = qualityOfServiceLevel,
                 Dup = dup,
                 Topic = topic,
-                Payload = reader.ReadRemainingData(),
+                Payload = body.Slice(position).ToArray(),
                 PacketIdentifier = packetIdentifier
             };
 
             return packet;
         }
 
-        private static MqttBasePacket DeserializeConnect(MqttPacketReader reader)
+        private static MqttBasePacket DeserializeConnect(in ReadOnlySpan<byte> body)
         {
-            reader.ReadBytes(2); // Skip 2 bytes
+            var position = 2; // Skip 2 bytes
 
             MqttProtocolVersion protocolVersion;
-            var protocolName = reader.ReadBytes(4);
+            var protocolName = body.Slice(position, 4);
+            position += 4;
             if (protocolName.SequenceEqual(ProtocolVersionV310Name))
             {
-                reader.ReadBytes(2);
+                position += 2;
                 protocolVersion = MqttProtocolVersion.V310;
             }
             else if (protocolName.SequenceEqual(ProtocolVersionV311Name))
@@ -237,8 +229,8 @@ namespace MQTTnet.Serializer
                 throw new MqttProtocolViolationException("Protocol name is not supported.");
             }
 
-            reader.ReadByte(); // Skip protocol level
-            var connectFlags = reader.ReadByte();
+            position += 1; // Skip protocol level
+            var connectFlags = body.ReadByte(ref position);
 
             var connectFlagsReader = new ByteReader(connectFlags);
             connectFlagsReader.Read(); // Reserved.
@@ -255,15 +247,15 @@ namespace MQTTnet.Serializer
             var passwordFlag = connectFlagsReader.Read();
             var usernameFlag = connectFlagsReader.Read();
 
-            packet.KeepAlivePeriod = reader.ReadUInt16();
-            packet.ClientId = reader.ReadStringWithLengthPrefix();
+            packet.KeepAlivePeriod = body.ReadUInt16(ref position);
+            packet.ClientId = body.ReadStringWithLengthPrefix(ref position);
 
             if (willFlag)
             {
                 packet.WillMessage = new MqttPublishPacket
                 {
-                    Topic = reader.ReadStringWithLengthPrefix(),
-                    Payload = reader.ReadWithLengthPrefix(),
+                    Topic = body.ReadStringWithLengthPrefix(ref position),
+                    Payload = body.ReadWithLengthPrefix(ref position),
                     QualityOfServiceLevel = (MqttQualityOfServiceLevel)willQoS,
                     Retain = willRetain
                 };
@@ -271,45 +263,47 @@ namespace MQTTnet.Serializer
 
             if (usernameFlag)
             {
-                packet.Username = reader.ReadStringWithLengthPrefix();
+                packet.Username = body.ReadStringWithLengthPrefix(ref position);
             }
 
             if (passwordFlag)
             {
-                packet.Password = reader.ReadStringWithLengthPrefix();
+                packet.Password = body.ReadStringWithLengthPrefix(ref position);
             }
 
             ValidateConnectPacket(packet);
             return packet;
         }
 
-        private static MqttBasePacket DeserializeSubAck(MqttPacketReader reader)
+        private static MqttBasePacket DeserializeSubAck(in ReadOnlySpan<byte> body)
         {
+            var position = 0;
             var packet = new MqttSubAckPacket
             {
-                PacketIdentifier = reader.ReadUInt16()
+                PacketIdentifier = body.ReadUInt16(ref position)
             };
 
-            while (!reader.EndOfRemainingData)
+            while (position < body.Length)
             {
-                packet.SubscribeReturnCodes.Add((MqttSubscribeReturnCode)reader.ReadByte());
+                packet.SubscribeReturnCodes.Add((MqttSubscribeReturnCode)body.ReadByte(ref position));
             }
 
             return packet;
         }
 
-        private MqttBasePacket DeserializeConnAck(MqttPacketReader reader)
+        private MqttBasePacket DeserializeConnAck(in ReadOnlySpan<byte> body)
         {
+            var position = 0;
             var packet = new MqttConnAckPacket();
 
-            var firstByteReader = new ByteReader(reader.ReadByte());
+            var firstByteReader = new ByteReader(body.ReadByte(ref position));
 
             if (ProtocolVersion == MqttProtocolVersion.V311)
             {
                 packet.IsSessionPresent = firstByteReader.Read();
             }
 
-            packet.ConnectReturnCode = (MqttConnectReturnCode)reader.ReadByte();
+            packet.ConnectReturnCode = (MqttConnectReturnCode)body.ReadByte(ref position);
 
             return packet;
         }

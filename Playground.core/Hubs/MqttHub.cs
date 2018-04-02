@@ -30,6 +30,11 @@ namespace Playground.core.Hubs
 
         public MqttBasePacket OnPublish(MqttPublishPacket publish)
         {
+            if (publish.QualityOfServiceLevel == MqttQualityOfServiceLevel.AtMostOnce) 
+            {
+                return null;
+            } 
+
             return new MqttPubAckPacket()
             {
                 PacketIdentifier = publish.PacketIdentifier,
