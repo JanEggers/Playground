@@ -1,11 +1,7 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using MQTTnet.Packets;
-using MQTTnet.Protocol;
-using MQTTnet.Server;
 using System;
-using System.Linq;
-using System.Reactive.Linq;
 using System.Threading.Tasks;
 
 namespace Playground.core.Hubs
@@ -19,6 +15,11 @@ namespace Playground.core.Hubs
             this.logger = logger;
         }
 
+        [Mqtt(Topic ="Step")]
+        public void OnPublish(long payload) 
+        {
+
+        }
         
         public override Task OnConnectedAsync()
         {

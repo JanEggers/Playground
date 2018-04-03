@@ -9,10 +9,13 @@ using MQTTnet.Packets;
 using MQTTnet.Protocol;
 using MQTTnet.Serializer;
 using MQTTnet.Server;
+using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Playground.core.Hubs
@@ -20,6 +23,15 @@ namespace Playground.core.Hubs
     public class MqttHubConnectionHandler<THub> : ConnectionHandler 
         where THub : Hub
     {
+        private class Target 
+        {
+            public string Name { get; set; }
+
+            public string Topic { get; set; }
+
+            public IReadOnlyList<Type> ParameterTypes { get; set; }
+        }
+
         private readonly HubLifetimeManager<THub> _lifetimeManager;
         private readonly ILoggerFactory _loggerFactory;
         private readonly ILogger<MqttHubConnectionHandler<THub>> _logger;
@@ -32,6 +44,8 @@ namespace Playground.core.Hubs
         private readonly bool _enableDetailedErrors;
         
         private Subject<MqttPublishPacket> _packets = new Subject<MqttPublishPacket>();
+
+        private List<Target> _targets = new List<Target>();
 
         public MqttHubConnectionHandler(HubLifetimeManager<THub> lifetimeManager,
                                     IOptions<HubOptions> globalHubOptions,
@@ -52,6 +66,29 @@ namespace Playground.core.Hubs
             _protocol = protocol;
             _serializer = serializer;
             _enableDetailedErrors = false;
+
+            _targets = DiscoverTargets();
+        }
+
+        private List<Target> DiscoverTargets()
+        {
+            var all = typeof(THub).GetMethods()
+                .Select(m => new
+                {
+                    Method = m,
+                    Mqtt = m.GetCustomAttributes(typeof(MqttAttribute), true)
+                });
+
+            var filtered = all
+                .Where(m => m.Mqtt.Length == 1)
+                .Select(m => new Target()
+                {
+                    Name = m.Method.Name,
+                    Topic = ((MqttAttribute)m.Mqtt[0]).Topic,
+                    ParameterTypes = _dispatcher.GetParameterTypes(m.Method.Name),
+                }).ToList();
+
+            return filtered;
         }
 
         public override async Task OnConnectedAsync(ConnectionContext connection)
@@ -247,6 +284,25 @@ namespace Playground.core.Hubs
             }
 
             _packets.OnNext(publish);
+
+            foreach (var target in _targets)
+            {
+                if (!MqttTopicFilterComparer.IsMatch(publish.Topic, target.Topic)) 
+                {
+                    continue;
+                }
+
+                var invokationId = Guid.NewGuid().ToString();
+
+                object parameter = publish;
+
+                if (target.ParameterTypes[0] != typeof(MqttPublishPacket)) 
+                {
+                    parameter = JsonConvert.DeserializeObject(Encoding.UTF8.GetString(publish.Payload));
+                }
+
+                _dispatcher.DispatchMessageAsync(connection, new InvocationMessage(invokationId, nameof(MqttHub.OnPublish), null, parameter));
+            }
 
             if (publish.QualityOfServiceLevel == MqttQualityOfServiceLevel.AtMostOnce)
             {
