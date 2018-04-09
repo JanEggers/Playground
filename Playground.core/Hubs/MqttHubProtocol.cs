@@ -1,5 +1,6 @@
 ﻿using System.Buffers;
 using System.IO;
+using System.Linq;
 using System.Reactive.Subjects;
 using Microsoft.AspNetCore.Connections;
 using Microsoft.AspNetCore.SignalR.Internal;
@@ -64,6 +65,10 @@ namespace Playground.core.Hubs
                         _logger.LogInformation($"close");
                     }
                     WriteMqttPacket(new MqttDisconnectPacket() { }, output);
+                    break;
+                case InvocationMessage invokation:
+                    var packet = invokation.Arguments.OfType<MqttPublishPacket>().FirstOrDefault();
+                    WriteMqttPacket(packet, output);
                     break;
                 default:
                     break;
