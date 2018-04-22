@@ -1,9 +1,17 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.AspNetCore.SignalR.Protocol;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using MQTTnet.Serializer;
+using Newtonsoft.Json;
 using Playground.Client.Generated;
+using Playground.Client.Mqtt.Tcp;
+using Playground.core.Hubs;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
@@ -17,65 +25,118 @@ namespace Playground.Client
         {
             Console.WriteLine("Hello World!");
 
-            Run().Wait();
+            RunMqtt().Wait();
         }
 
-        private static async Task Run() {
-            var api = new MyAPI(new Uri("http://localhost:5000/"));
-
-
-            while (true)
+        private static async Task RunMqtt()
+        {
+            try
             {
-                await Task.Delay(1000);
+                var endpoint = new IPEndPoint(IPAddress.Loopback, 1883);
+                //var loggerFactory = new LoggerFactory();
+                //var connection = new TcpConnection(endpoint);
+                //var mqtt = new MqttHubConnectionContext(connection, TimeSpan.FromSeconds(10), loggerFactory);
 
-                try
+                var connection = new HubConnectionBuilder()
+                   .ConfigureLogging(logging =>
+                   {
+                       logging.AddConsole();
+                   })
+                   .WithEndPoint(endpoint)
+                   .ConfigureServices(s => {
+                       s.AddTransient<IHubProtocol, MqttHubProtocol>();
+                       s.AddSingleton<MqttPacketSerializer>();
+                   })
+                   .Build();
+
+                while (true)
                 {
-                    var result = await Login(api, "someone", "pass");
-
-                    Console.WriteLine("login successful");
-
-                    while (true) { 
-                        var api2 = new MyAPI(new Uri("http://localhost:5000/"));
-                        api2.HttpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {result.AuthentificationToken}");
-                        var companies = await api2.ApiCompaniesGetAsync();
-
-                        await Task.WhenAll(companies.Select(async p =>
-                        {
-                            await Task.Yield(); 
-                            p.Sites = await api2.ApiCompaniesByKeySitesGetAsync(p.Id.Value);
-                        }));
-
-
-                        Console.WriteLine("got em");
+                    try
+                    {
+                        await connection.StartAsync();
+                        break;
+                    }
+                    catch (Exception)
+                    {
                     }
                 }
-                catch (Exception)
+
+                long payload = 0;
+                while (true)
                 {
+                    await connection.SendAsync("foo", new MQTTnet.Packets.MqttPublishPacket()
+                    {
+                        Topic = "Step",
+                        Payload = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(payload))
+                    });
+                    payload++;
                 }
+
             }
-        }
-
-        private static async Task<AuthResult> Login(MyAPI api, string userName, string password)
-        {
-            var message = new HttpRequestMessage(HttpMethod.Post, api.BaseUri + "connect/token");
-            message.Content = new StringContent($"grant_type=password&scope=offline_access&username={userName}&password={password}",
-                            Encoding.UTF8,
-                            "application/x-www-form-urlencoded");
-
-            var response = await api.HttpClient.SendAsync(message);
-
-            using (var reader = new JsonTextReader(new StreamReader(await response.Content.ReadAsStreamAsync())))
+            catch (Exception)
             {
-                var serializer = new JsonSerializer();
-                var result = (dynamic)serializer.Deserialize(reader);
 
-                return new AuthResult()
-                {
-                    RefreshToken = result.refresh_token,
-                    AuthentificationToken = result.access_token,
-                };
+                throw;
             }
         }
+
+
+        //private static async Task Run() {
+        //    var api = new MyAPI(new Uri("http://localhost:5000/"));
+
+
+        //    while (true)
+        //    {
+        //        await Task.Delay(1000);
+
+        //        try
+        //        {
+        //            var result = await Login(api, "someone", "pass");
+
+        //            Console.WriteLine("login successful");
+
+        //            while (true) { 
+        //                var api2 = new MyAPI(new Uri("http://localhost:5000/"));
+        //                api2.HttpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {result.AuthentificationToken}");
+        //                var companies = await api2.ApiCompaniesGetAsync();
+
+        //                await Task.WhenAll(companies.Select(async p =>
+        //                {
+        //                    await Task.Yield(); 
+        //                    p.Sites = await api2.ApiCompaniesByKeySitesGetAsync(p.Id.Value);
+        //                }));
+
+
+        //                Console.WriteLine("got em");
+        //            }
+        //        }
+        //        catch (Exception)
+        //        {
+        //        }
+        //    }
+        //}
+
+        //private static async Task<AuthResult> Login(MyAPI api, string userName, string password)
+        //{
+        //    var message = new HttpRequestMessage(HttpMethod.Post, api.BaseUri + "connect/token");
+        //    message.Content = new StringContent($"grant_type=password&scope=offline_access&username={userName}&password={password}",
+        //                    Encoding.UTF8,
+        //                    "application/x-www-form-urlencoded");
+
+        //    var response = await api.HttpClient.SendAsync(message);
+
+        //    using (var reader = new JsonTextReader(new StreamReader(await response.Content.ReadAsStreamAsync())))
+        //    {
+        //        var serializer = new JsonSerializer();
+        //        var result = (dynamic)serializer.Deserialize(reader);
+
+        //        return new AuthResult()
+        //        {
+        //            RefreshToken = result.refresh_token,
+        //            AuthentificationToken = result.access_token,
+        //        };
+        //    }
+        //}
     }
 
     public class AuthResult {

@@ -3,6 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.0</TargetFramework>
+    <LangVersion>7.2</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -12,7 +13,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Rest.ClientRuntime" Version="2.3.6" />
+    <PackageReference Include="Microsoft.AspNetCore.Connections.Abstractions" Version="2.1.0-rc1-30639" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client.Core" Version="1.0.0-rc1-30639" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="2.1.0-rc1-30639" />
+    <PackageReference Include="Microsoft.Rest.ClientRuntime" Version="2.3.11" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Playground.core\Playground.core.csproj" />
   </ItemGroup>
   
 </Project>

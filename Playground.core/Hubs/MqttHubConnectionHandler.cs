@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.Connections;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.AspNetCore.SignalR.Core;
 using Microsoft.AspNetCore.SignalR.Internal;
-using Microsoft.AspNetCore.SignalR.Internal.Protocol;
+using Microsoft.AspNetCore.SignalR.Protocol;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MQTTnet.Packets;
@@ -100,8 +99,8 @@ namespace Playground.core.Hubs
             
             var connectionContext = new MqttHubConnectionContext(connection, keepAlive, _loggerFactory);
 
-            var p = connectionContext.GetType().GetProperty("Protocol", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
-
+            var p = connectionContext.GetType().GetProperty("Protocol", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
+            
             p.SetValue(connectionContext, _protocol);
 
             try
@@ -301,7 +300,7 @@ namespace Playground.core.Hubs
                     parameter = JsonConvert.DeserializeObject(Encoding.UTF8.GetString(publish.Payload));
                 }
 
-                _dispatcher.DispatchMessageAsync(connection, new InvocationMessage(invokationId, nameof(MqttHub.OnPublish), null, parameter));
+                _dispatcher.DispatchMessageAsync(connection, new InvocationMessage(invokationId, nameof(MqttHub.OnPublish), new[] { parameter }));
             }
 
             if (publish.QualityOfServiceLevel == MqttQualityOfServiceLevel.AtMostOnce)

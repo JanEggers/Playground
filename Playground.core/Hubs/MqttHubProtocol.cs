@@ -1,10 +1,11 @@
-﻿using System.Buffers;
+﻿using System;
+using System.Buffers;
 using System.IO;
 using System.Linq;
 using System.Reactive.Subjects;
 using Microsoft.AspNetCore.Connections;
-using Microsoft.AspNetCore.SignalR.Internal;
-using Microsoft.AspNetCore.SignalR.Internal.Protocol;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNetCore.SignalR.Protocol;
 using Microsoft.Extensions.Logging;
 using MQTTnet.Packets;
 using MQTTnet.Serializer;
@@ -40,71 +41,73 @@ namespace Playground.core.Hubs
             message = null;
             return false;
         }
+        
+        public void WriteMessage(HubMessage message, IBufferWriter<byte> output)
+        {
+            var packet = GetMqttPacket(message);
+            var buffer = _serializer.Serialize(packet);
+            var count = 0;
+            foreach (var chunk in buffer)
+            {
+                output.Write(chunk.Array.AsSpan(chunk.Offset, chunk.Count));
+                count += chunk.Count;
+            }
+            output.Advance(count);
+        }
 
-        public void WriteMessage(HubMessage message, Stream output)
+        public ReadOnlyMemory<byte> GetMessageBytes(HubMessage message)
+        {
+            return HubProtocolExtensions.GetMessageBytes(this, message);
+        }
+
+        private MqttBasePacket GetMqttPacket(HubMessage message)
         {
             switch (message)
             {
                 case CompletionMessage completion:
-                    if (_logger.IsEnabled(LogLevel.Information)) 
+                    if (_logger.IsEnabled(LogLevel.Information))
                     {
                         _logger.LogInformation($"complete {completion.InvocationId}");
                     }
-                    WriteCompletionMessage(completion, output);
-                    break;
+                    return GetMqttPacket(completion);
                 case StreamItemMessage streamItem:
                     if (_logger.IsEnabled(LogLevel.Information))
                     {
                         _logger.LogInformation($"streamItem {streamItem.InvocationId}");
                     }
-                    WriteStreamMessage(streamItem, output);
-                    break;
+                    return GetMqttPacket(streamItem);
                 case CloseMessage close:
                     if (_logger.IsEnabled(LogLevel.Information))
                     {
                         _logger.LogInformation($"close");
                     }
-                    WriteMqttPacket(new MqttDisconnectPacket() { }, output);
-                    break;
+                    return new MqttDisconnectPacket() { };
                 case InvocationMessage invokation:
-                    var packet = invokation.Arguments.OfType<MqttPublishPacket>().FirstOrDefault();
-                    WriteMqttPacket(packet, output);
-                    break;
+                    return invokation.Arguments.OfType<MqttPublishPacket>().FirstOrDefault();
                 default:
-                    break;
+                    return null;
             }
         }
 
-        public void WriteStreamMessage(StreamItemMessage streamItem, Stream output)
+        private MqttBasePacket GetMqttPacket(StreamItemMessage streamItem)
         {
             switch (streamItem.Item)
             {
                 case MqttBasePacket mqtt:
-                    WriteMqttPacket(mqtt, output);
-                    break;
+                    return mqtt;
                 default:
-                    break;
+                    return null;
             }
         }
 
-        public void WriteCompletionMessage(CompletionMessage completion, Stream output) 
+        private MqttBasePacket GetMqttPacket(CompletionMessage completion) 
         {
             switch (completion.Result) 
             {
                 case MqttBasePacket mqtt:
-                    WriteMqttPacket(mqtt, output);
-                    break;
-                default: 
-                    break;
-            }
-        }
-
-        private void WriteMqttPacket(MqttBasePacket mqtt, Stream output)
-        {
-            var buffer = _serializer.Serialize(mqtt);
-            foreach (var chunk in buffer)
-            {
-                output.Write(chunk.Array, chunk.Offset, chunk.Count);
+                    return mqtt;
+                default:
+                    return null;
             }
         }
     }
