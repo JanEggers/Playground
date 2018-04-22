@@ -97,12 +97,8 @@ namespace Playground.core.Hubs
             var keepAlive = _hubOptions.KeepAliveInterval ?? _globalHubOptions.KeepAliveInterval ?? TimeSpan.FromSeconds(5);
             var handshakeTimeout = _hubOptions.HandshakeTimeout ?? _globalHubOptions.HandshakeTimeout ?? TimeSpan.FromSeconds(10);
             
-            var connectionContext = new MqttHubConnectionContext(connection, keepAlive, _loggerFactory);
-
-            var p = connectionContext.GetType().GetProperty("Protocol", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
+            var connectionContext = new MqttHubConnectionContext(connection, keepAlive, _loggerFactory, _protocol);
             
-            p.SetValue(connectionContext, _protocol);
-
             try
             {
                 await _lifetimeManager.OnConnectedAsync(connectionContext);
@@ -231,7 +227,7 @@ namespace Playground.core.Hubs
                     }
                 }
             }
-            catch (OperationCanceledException)
+            catch (Exception)
             {
                 // If there's an exception, bubble it to the caller
                 //connection.AbortException?.Throw();

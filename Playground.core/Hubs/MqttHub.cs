@@ -18,11 +18,11 @@ namespace Playground.core.Hubs
         [Mqtt(Topic ="Step")]
         public void OnPublish(long payload) 
         {
-            Clients.All.SendAsync("mqtt", new MqttPublishPacket()
-            {
-                Topic = "Hello",
-                Payload = System.Text.Encoding.UTF8.GetBytes("World")
-            });
+            //Clients.All.SendAsync("mqtt", new MqttPublishPacket()
+            //{
+            //    Topic = "Hello",
+            //    Payload = System.Text.Encoding.UTF8.GetBytes("World")
+            //});
         }
         
         public override Task OnConnectedAsync()

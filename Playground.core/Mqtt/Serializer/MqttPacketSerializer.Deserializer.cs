@@ -22,9 +22,10 @@ namespace MQTTnet.Serializer
             {
                 return false;
             }
-
+            
             input = copy.Slice(header.BodyLength);
-            packet = Deserialize(header, copy.Slice(0, header.BodyLength).First.Span);
+            var body = copy.Slice(0, header.BodyLength).GetSpan();
+            packet = Deserialize(header, body);
             return true;
         }
 

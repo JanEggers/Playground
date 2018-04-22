@@ -45,14 +45,19 @@ namespace Playground.core.Hubs
         public void WriteMessage(HubMessage message, IBufferWriter<byte> output)
         {
             var packet = GetMqttPacket(message);
+            if (packet == null)
+            {
+                return;
+            }
             var buffer = _serializer.Serialize(packet);
-            var count = 0;
+            var count = buffer.Sum(b => b.Count);
+            var mem = output.GetMemory(count);
+            
             foreach (var chunk in buffer)
             {
                 output.Write(chunk.Array.AsSpan(chunk.Offset, chunk.Count));
                 count += chunk.Count;
             }
-            output.Advance(count);
         }
 
         public ReadOnlyMemory<byte> GetMessageBytes(HubMessage message)

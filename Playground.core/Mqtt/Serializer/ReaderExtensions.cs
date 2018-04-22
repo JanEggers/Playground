@@ -82,10 +82,12 @@ namespace MQTTnet.Serializer
             byte encodedByte;
             var index = 1;
 
+            var temp = input.Slice(0, Math.Min(5, input.Length)).GetSpan();
+
             var readBytes = new List<byte>();
             do
             {
-                encodedByte = input.First.Span[index];
+                encodedByte = temp[index];
                 readBytes.Add(encodedByte);
                 index++;
 
@@ -101,6 +103,19 @@ namespace MQTTnet.Serializer
             input = input.Slice(index);
 
             return value;
+        }
+
+
+
+        public static ReadOnlySpan<Byte> GetSpan(this in ReadOnlySequence<byte> input)
+        {
+            if (input.IsSingleSegment)
+            {
+                return input.First.Span;
+            }
+
+            // Should be rare
+            return input.ToArray();
         }
     }
 }

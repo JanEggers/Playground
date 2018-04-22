@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.SignalR.Protocol;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using MQTTnet;
 using MQTTnet.Serializer;
 using Newtonsoft.Json;
 using Playground.Client.Generated;
@@ -9,6 +10,7 @@ using Playground.Client.Mqtt.Tcp;
 using Playground.core.Hubs;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -33,27 +35,33 @@ namespace Playground.Client
             try
             {
                 var endpoint = new IPEndPoint(IPAddress.Loopback, 1883);
-                //var loggerFactory = new LoggerFactory();
-                //var connection = new TcpConnection(endpoint);
-                //var mqtt = new MqttHubConnectionContext(connection, TimeSpan.FromSeconds(10), loggerFactory);
+                var loggerFactory = new LoggerFactory();
+                var connection = new TcpConnection(endpoint);
+                var serializer = new MqttPacketSerializer();
+                var protocol = new MqttHubProtocol(serializer, loggerFactory.CreateLogger<MqttHubProtocol>());
+                var mqtt = new MqttHubConnectionContext(connection, TimeSpan.FromSeconds(10), loggerFactory, protocol);
 
-                var connection = new HubConnectionBuilder()
-                   .ConfigureLogging(logging =>
-                   {
-                       logging.AddConsole();
-                   })
-                   .WithEndPoint(endpoint)
-                   .ConfigureServices(s => {
-                       s.AddTransient<IHubProtocol, MqttHubProtocol>();
-                       s.AddSingleton<MqttPacketSerializer>();
-                   })
-                   .Build();
+                //var connection = new HubConnectionBuilder()
+                //   .ConfigureLogging(logging =>
+                //   {
+                //       logging.AddConsole();
+                //   })
+                //   .WithEndPoint(endpoint)
+                //   .ConfigureServices(s => {
+                //       s.AddTransient<IHubProtocol, MqttHubProtocol>();
+                //       s.AddSingleton<MqttPacketSerializer>();
+                //   })
+                //   .Build();
 
                 while (true)
                 {
                     try
                     {
                         await connection.StartAsync();
+                        //await mqtt.SubscribeAsync(new MQTTnet.Packets.MqttSubscribePacket()
+                        //{
+                        //    TopicFilters = new List<TopicFilter>() { new TopicFilter("#", MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce) }
+                        //});
                         break;
                     }
                     catch (Exception)
@@ -61,17 +69,35 @@ namespace Playground.Client
                     }
                 }
 
+                var sw = new Stopwatch();
+
+                sw.Start();
+
                 long payload = 0;
                 while (true)
                 {
-                    await connection.SendAsync("foo", new MQTTnet.Packets.MqttPublishPacket()
+                    var packages = Enumerable.Range(0, 100).Select(p =>
                     {
-                        Topic = "Step",
-                        Payload = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(payload))
-                    });
-                    payload++;
-                }
+                        payload++;
+                        return new MQTTnet.Packets.MqttPublishPacket()
+                        {
+                            Topic = "Step",
+                            Payload = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(payload))
+                        };
+                    }).ToList();
 
+                    await Task.WhenAll(packages.Select(p => mqtt.PublishAsync(p).AsTask()));
+                    
+                    if (sw.Elapsed > TimeSpan.FromSeconds(1))
+                    {
+                        sw.Stop();
+                        var elapsed = sw.Elapsed;
+
+                        Console.WriteLine($"send {payload / elapsed.TotalSeconds} packages/sec");
+                        sw.Restart();
+                        payload = 0;
+                    }
+                }
             }
             catch (Exception)
             {
