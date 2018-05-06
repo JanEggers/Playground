@@ -2,59 +2,17 @@
 using System.Buffers;
 using System.Buffers.Binary;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using MQTTnet.Exceptions;
 using MQTTnet.Packets;
 using MQTTnet.Protocol;
+using MQTTnet.Serializer;
 
-namespace MQTTnet.Serializer
+namespace Playground.core.Mqtt
 {
     public static class ReaderExtensions 
     {
-        public static ushort ReadUInt16(this in ReadOnlySpan<byte> input)
-        {
-            return BinaryPrimitives.ReadUInt16BigEndian(input);
-        }
-
-        public static ushort ReadByte(this in ReadOnlySpan<byte> input, ref int position)
-        {
-            var result = input.Slice(position, 1)[0];
-            position += 1;
-            return result;
-        }
-
-        public static ushort ReadUInt16(this in ReadOnlySpan<byte> input, ref int position)
-        {
-            var result = BinaryPrimitives.ReadUInt16BigEndian(input.Slice(position, 2));
-            position += 2;
-            return result;
-        }
-
-        public static string ReadStringWithLengthPrefix(this in ReadOnlySpan<byte> input, ref int position)
-        {
-            var buffer = input.ReadWithLengthPrefix(ref position);
-            if (buffer.Length == 0)
-            {
-                return string.Empty;
-            }
-
-            return Encoding.UTF8.GetString(buffer, 0, buffer.Length);
-        }
-
-        public static byte[] ReadWithLengthPrefix(this in ReadOnlySpan<byte> input, ref int position)
-        {
-            var length = input.ReadUInt16(ref position);
-            if (length == 0)
-            {
-                return new byte[0];
-            }
-
-            var result = input.Slice(position, length).ToArray();
-            position += length;
-            return result;
-        }
-
-
         public static MqttPacketHeader ReadHeader(this ref ReadOnlySequence<byte> input)
         {
             if (input.Length < 2)
@@ -82,7 +40,7 @@ namespace MQTTnet.Serializer
             byte encodedByte;
             var index = 1;
 
-            var temp = input.Slice(0, Math.Min(5, input.Length)).GetSpan();
+            var temp = input.Slice(0, Math.Min(5, input.Length)).GetArray();
 
             var readBytes = new List<byte>();
             do
@@ -107,15 +65,56 @@ namespace MQTTnet.Serializer
 
 
 
-        public static ReadOnlySpan<Byte> GetSpan(this in ReadOnlySequence<byte> input)
+        public static byte[] GetArray(this in ReadOnlySequence<byte> input)
         {
             if (input.IsSingleSegment)
             {
-                return input.First.Span;
+                return input.First.Span.ToArray();
             }
 
             // Should be rare
             return input.ToArray();
+        }
+
+        public static bool TryDeserialize(this IMqttPacketSerializer serializer, ref ReadOnlySequence<byte> input, out MqttBasePacket packet)
+        {
+            packet = null;
+            var copy = input;
+            var header = copy.ReadHeader();
+            if (header == null || copy.Length < header.BodyLength)
+            {
+                return false;
+            }
+
+            input = copy.Slice(header.BodyLength);
+            var bodySlice = copy.Slice(0, header.BodyLength);
+            using (var body = new MemoryStream(bodySlice.GetArray()))
+            {
+                packet = serializer.Deserialize(header, body);
+                return true;
+            }
+        }
+
+        public static bool TryDeserialize(this IMqttPacketSerializer serializer, in ReadOnlySequence<byte> input, out MqttBasePacket packet, out SequencePosition consumed, out SequencePosition observed)
+        {
+            packet = null;
+            var copy = input;
+            var header = copy.ReadHeader();
+            if (header == null || copy.Length < header.BodyLength)
+            {
+                consumed = input.Start;
+                observed = input.End;
+                return false;
+            }
+
+            var bodySlice = copy.Slice(0, header.BodyLength);
+            using (var body = new MemoryStream(bodySlice.GetArray()))
+            {
+                packet = serializer.Deserialize(header, body);
+                consumed = bodySlice.End;
+                observed = bodySlice.End;
+                return true;
+            }
         }
     }
 }

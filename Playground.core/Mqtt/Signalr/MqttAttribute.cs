@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Playground.core.Hubs
+namespace Playground.core.Mqtt.Signalr
 {
     [AttributeUsage(AttributeTargets.Method)]
     public class MqttAttribute : Attribute

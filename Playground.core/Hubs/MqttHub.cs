@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using MQTTnet.Packets;
 using System;
 using System.Threading.Tasks;
+using Playground.core.Mqtt.Signalr;
 
 namespace Playground.core.Hubs
 {

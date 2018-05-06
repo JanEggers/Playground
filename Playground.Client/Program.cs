@@ -1,22 +1,14 @@
-﻿using Microsoft.AspNetCore.SignalR.Client;
-using Microsoft.AspNetCore.SignalR.Protocol;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using MQTTnet;
+﻿using Microsoft.Extensions.Logging;
+using MQTTnet.Packets;
 using MQTTnet.Serializer;
 using Newtonsoft.Json;
-using Playground.Client.Generated;
 using Playground.Client.Mqtt.Tcp;
-using Playground.core.Hubs;
+using Playground.core.Mqtt;
+using Playground.core.Mqtt.Signalr;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Playground.Client
@@ -38,8 +30,7 @@ namespace Playground.Client
                 var loggerFactory = new LoggerFactory();
                 var connection = new TcpConnection(endpoint);
                 var serializer = new MqttPacketSerializer();
-                var protocol = new MqttHubProtocol(serializer, loggerFactory.CreateLogger<MqttHubProtocol>());
-                var mqtt = new MqttHubConnectionContext(connection, TimeSpan.FromSeconds(10), loggerFactory, protocol);
+                var mqtt = new MqttConnectionContext(serializer, connection);
 
                 //var connection = new HubConnectionBuilder()
                 //   .ConfigureLogging(logging =>
@@ -58,15 +49,25 @@ namespace Playground.Client
                     try
                     {
                         await connection.StartAsync();
-                        //await mqtt.SubscribeAsync(new MQTTnet.Packets.MqttSubscribePacket()
-                        //{
-                        //    TopicFilters = new List<TopicFilter>() { new TopicFilter("#", MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce) }
-                        //});
                         break;
                     }
                     catch (Exception)
                     {
                     }
+                }
+
+                try
+                {
+                    await mqtt.ConnectAsync(new MqttConnectPacket());
+                    //await mqtt.SubscribeAsync(new MQTTnet.Packets.MqttSubscribePacket()
+                    //{
+                    //    TopicFilters = new List<TopicFilter>() { new TopicFilter("#", MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce) }
+                    //});
+                }
+                catch (Exception)
+                {
+
+                    throw;
                 }
 
                 var sw = new Stopwatch();
@@ -76,19 +77,17 @@ namespace Playground.Client
                 long payload = 0;
                 while (true)
                 {
-                    var packages = Enumerable.Range(0, 100).Select(p =>
+                    var p = new MQTTnet.Packets.MqttPublishPacket()
                     {
-                        payload++;
-                        return new MQTTnet.Packets.MqttPublishPacket()
-                        {
-                            Topic = "Step",
-                            Payload = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(payload))
-                        };
-                    }).ToList();
+                        Topic = "Step",
+                        Payload = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(payload))
+                    };
 
-                    await Task.WhenAll(packages.Select(p => mqtt.PublishAsync(p).AsTask()));
-                    
-                    if (sw.Elapsed > TimeSpan.FromSeconds(1))
+                    payload++;
+
+                    await mqtt.PublishAsync(p);
+
+                    if (sw.Elapsed > TimeSpan.FromSeconds(5))
                     {
                         sw.Stop();
                         var elapsed = sw.Elapsed;

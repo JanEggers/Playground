@@ -23,7 +23,15 @@ using Serilog;
 using Serilog.Events;
 
 using Swashbuckle.AspNetCore.Swagger;
+using MQTTnet;
+using MQTTnet.AspNetCore;
 using MQTTnet.Serializer;
+using Playground.core.Mqtt.Signalr;
+using Playground.core.Mqtt;
+using MQTTnet.Server;
+using MQTTnet.Adapter;
+using System.Linq;
+using MQTTnet.Diagnostics;
 
 namespace Playground.core
 {
@@ -114,8 +122,26 @@ namespace Playground.core
             services.AddTransient<SeedService>();
 
             services.AddSingleton(typeof(MqttHubConnectionHandler<>), typeof(MqttHubConnectionHandler<>));
+            services.AddSingleton(typeof(MqttConnectionHandler), typeof(MqttConnectionHandler));
             services.AddSingleton<MqttHubProtocol>();
             services.AddSingleton<MqttPacketSerializer>();
+
+            services.AddHostedMqttServer(new MqttServerOptions());
+            foreach (var item in services.Where(s => s.ServiceType == typeof(IMqttServerAdapter)).ToList())
+            {
+                services.Remove(item);
+            }
+            
+            services.AddSingleton<IMqttServerAdapter>(s => s.GetRequiredService<MqttConnectionHandler>());
+
+
+            MqttNetGlobalLogger.LogMessagePublished += (sender, e) =>
+            {
+                if (e.TraceMessage.Level >= MqttNetLogLevel.Warning)
+                {
+
+                }
+            };
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -166,6 +192,14 @@ namespace Playground.core
             app.UseSignalR(routes =>
             {
                 routes.MapHub<UpdateHub>("/updates");
+            });
+
+            app.UseMqttServer(s =>
+            {
+                s.ApplicationMessageReceived += (sender, e) =>
+                {
+
+                };
             });
         }
 

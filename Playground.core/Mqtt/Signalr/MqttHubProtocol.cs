@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 using MQTTnet.Packets;
 using MQTTnet.Serializer;
 
-namespace Playground.core.Hubs
+namespace Playground.core.Mqtt.Signalr
 {
     public class MqttHubProtocol : IHubProtocol
     {
@@ -49,14 +49,10 @@ namespace Playground.core.Hubs
             {
                 return;
             }
-            var buffer = _serializer.Serialize(packet);
-            var count = buffer.Sum(b => b.Count);
-            var mem = output.GetMemory(count);
-            
+            var buffer = _serializer.Serialize(packet);            
             foreach (var chunk in buffer)
             {
                 output.Write(chunk.Array.AsSpan(chunk.Offset, chunk.Count));
-                count += chunk.Count;
             }
         }
 

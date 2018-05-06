@@ -9,6 +9,7 @@ using MQTTnet.Protocol;
 using MQTTnet.Serializer;
 using MQTTnet.Server;
 using Newtonsoft.Json;
+using Playground.core.Hubs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +18,7 @@ using System.Reactive.Subjects;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Playground.core.Hubs
+namespace Playground.core.Mqtt.Signalr
 {
     public class MqttHubConnectionHandler<THub> : ConnectionHandler 
         where THub : Hub
@@ -40,7 +41,6 @@ namespace Playground.core.Hubs
         private readonly HubDispatcher<THub> _dispatcher;
         private readonly MqttHubProtocol _protocol;
         private readonly MqttPacketSerializer _serializer;
-        private readonly bool _enableDetailedErrors;
         
         private Subject<MqttPublishPacket> _packets = new Subject<MqttPublishPacket>();
 
@@ -64,7 +64,6 @@ namespace Playground.core.Hubs
             _dispatcher = dispatcher;
             _protocol = protocol;
             _serializer = serializer;
-            _enableDetailedErrors = false;
 
             _targets = DiscoverTargets();
         }
@@ -208,7 +207,7 @@ namespace Playground.core.Hubs
                     {
                         if (!buffer.IsEmpty)
                         {
-                            while (_serializer.Deserialize(ref buffer, out var packet))
+                            while (_serializer.TryDeserialize(ref buffer, out var packet))
                             {
                                 HandleMqttPacket(connection, packet);
                             }

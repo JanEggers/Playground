@@ -8,7 +8,7 @@ using System.IO.Pipelines;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Playground.core.Hubs
+namespace Playground.core.Mqtt.Signalr
 {
     public class MqttHubConnectionContext : HubConnectionContext
     {
@@ -23,32 +23,12 @@ namespace Playground.core.Hubs
 
             p.SetValue(this, protocol);
         }
-
-        private int messageId;
-
+        
         public PipeReader Input => connectionContext.Transport.Input;
 
         public ValueTask WriteAsync(MqttBasePacket packet)
         {
             return WriteAsync(new CompletionMessage("", null, packet, true));
-        }
-
-        public ValueTask PublishAsync(MqttPublishPacket packet)
-        {
-            if (!packet.PacketIdentifier.HasValue && packet.QualityOfServiceLevel > MQTTnet.Protocol.MqttQualityOfServiceLevel.AtMostOnce)
-            {
-                packet.PacketIdentifier = (ushort)Interlocked.Increment(ref messageId);
-            }
-            return WriteAsync(packet);
-        }
-
-        public ValueTask SubscribeAsync(MqttSubscribePacket packet)
-        {
-            if (!packet.PacketIdentifier.HasValue)
-            {
-                packet.PacketIdentifier = (ushort)Interlocked.Increment(ref messageId);
-            }
-            return WriteAsync(packet);
         }
     }
 }
