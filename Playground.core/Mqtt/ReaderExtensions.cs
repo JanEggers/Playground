@@ -42,17 +42,15 @@ namespace Playground.core.Mqtt
 
             var temp = input.Slice(0, Math.Min(5, input.Length)).GetArray();
 
-            var readBytes = new List<byte>();
             do
             {
                 encodedByte = temp[index];
-                readBytes.Add(encodedByte);
                 index++;
 
                 value += (byte)(encodedByte & 127) * multiplier;
                 if (multiplier > 128 * 128 * 128)
                 {
-                    throw new MqttProtocolViolationException($"Remaining length is invalid (Data={string.Join(",", readBytes)}).");
+                    throw new MqttProtocolViolationException($"Remaining length is invalid (Data={string.Join(",", temp.AsSpan(1, index).ToArray())}).");
                 }
 
                 multiplier *= 128;

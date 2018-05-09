@@ -45,7 +45,18 @@ namespace Playground.core.Mqtt
 
             while (!cancellationToken.IsCancellationRequested)
             {
-                var readResult = await input.ReadAsync(cancellationToken);
+                ReadResult readResult;
+                
+                var readTask = input.ReadAsync(cancellationToken);
+                if (readTask.IsCompleted)
+                {
+                    readResult = readTask.Result;
+                }
+                else
+                {
+                    readResult = await readTask;
+                }
+
                 var buffer = readResult.Buffer;
 
                 var consumed = buffer.Start;
@@ -67,18 +78,10 @@ namespace Playground.core.Mqtt
                 }
                 finally
                 {
-                    try
-                    {
-                        // The buffer was sliced up to where it was consumed, so we can just advance to the start.
-                        // We mark examined as buffer.End so that if we didn't receive a full frame, we'll wait for more data
-                        // before yielding the read again.
-                        input.AdvanceTo(consumed, observed);
-                    }
-                    catch (Exception)
-                    {
-
-                        throw;
-                    }
+                    // The buffer was sliced up to where it was consumed, so we can just advance to the start.
+                    // We mark examined as buffer.End so that if we didn't receive a full frame, we'll wait for more data
+                    // before yielding the read again.
+                    input.AdvanceTo(consumed, observed);
                 }
             }
 

@@ -93,6 +93,7 @@ namespace Playground.Client
                         var elapsed = sw.Elapsed;
 
                         Console.WriteLine($"send {payload / elapsed.TotalSeconds} packages/sec");
+
                         sw.Restart();
                         payload = 0;
                     }

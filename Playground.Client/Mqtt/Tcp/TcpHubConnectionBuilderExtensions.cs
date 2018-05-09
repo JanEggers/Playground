@@ -53,7 +53,7 @@ namespace Playground.Client.Mqtt.Tcp
                 _endPoint = endPoint;
             }
 
-            public Task<ConnectionContext> ConnectAsync(TransferFormat transferFormat)
+            public Task<ConnectionContext> ConnectAsync(TransferFormat transferFormat, CancellationToken cancellationToken)
             {
                 return new TcpConnection(_endPoint).StartAsync();
             }
