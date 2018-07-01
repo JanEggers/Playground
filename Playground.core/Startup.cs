@@ -53,7 +53,8 @@ namespace Playground.core
             
             services.AddDbContext<PlaygroundContext>(o => {
                 o.UseSqlServer(Configuration.GetSection("PlaygroundContext:ConnectionString").Value);
-    
+                o.UseLazyLoadingProxies();
+
                 //o.UseOpenIddict();
             });
 

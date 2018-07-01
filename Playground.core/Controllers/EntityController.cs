@@ -29,12 +29,12 @@ namespace Playground.core.Controllers
 
         protected ActionResult<IQueryable<TEntity>> GetAll()
         {
-            return Ok(m_set.AsNoTracking());
+            return Ok(m_set);
         }
 
         protected ActionResult<TEntity> GetSingleEntity(TKey key)
         {
-            var item = m_set.Where(Find(key)).AsNoTracking().FirstOrDefault();
+            var item = m_set.Where(Find(key)).FirstOrDefault();
             if (item == null)
             {
                 return NotFound();
@@ -46,7 +46,7 @@ namespace Playground.core.Controllers
         protected ActionResult<TRelated> GetSingleRelated<TRelated>(TKey key, Expression<Func<TEntity, TRelated>> selector)
             where TRelated : class
         {
-            var item = m_set.Where(Find(key)).AsNoTracking().FirstOrDefault();
+            var item = m_set.Where(Find(key)).FirstOrDefault();
             if (item == null)
             {
                 return NotFound();
@@ -59,7 +59,7 @@ namespace Playground.core.Controllers
         protected ActionResult<IQueryable<TRelated>> GetManyRelated<TRelated>(TKey key, Expression<Func<TEntity, IEnumerable<TRelated>>> selector)
             where TRelated : class
         {
-            var item = m_set.Where(Find(key)).AsNoTracking().FirstOrDefault();
+            var item = m_set.Where(Find(key)).FirstOrDefault();
             if (item == null)
             {
                 return NotFound();
