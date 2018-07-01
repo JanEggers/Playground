@@ -19,11 +19,8 @@ public class SecurityRequirementsOperationFilter : IOperationFilter
 
     public void Apply(Swashbuckle.AspNetCore.Swagger.Operation operation, OperationFilterContext context)
     {
-        var controllerPolicies = context.ApiDescription.ControllerAttributes()
+        var authrizations = context.ControllerActionDescriptor.GetControllerAndActionAttributes(true)
             .OfType<AuthorizeAttribute>();
-        var actionPolicies = context.ApiDescription.ActionAttributes()
-            .OfType<AuthorizeAttribute>();
-        var authrizations = controllerPolicies.Union(actionPolicies).Distinct();
 
         if (!authrizations.Any()) {
             return;
