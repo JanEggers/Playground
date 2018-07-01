@@ -39,16 +39,14 @@ namespace Playground.core.Controllers
         /// Companies?$filter=Name eq 'C700'
         /// </summary>
         /// <returns></returns>
-        [Produces(typeof(IEnumerable<Company>))]
         [HttpGet]
-        public IActionResult Get()
+        public ActionResult<IQueryable<Company>> Get()
         {
             return GetAll();
         }
 
-        [Produces(typeof(IEnumerable<SiteViewModel>))]
         [HttpGet(nameof(GetViewModels))]
-        public IActionResult GetViewModels()
+        public ActionResult<IQueryable<SiteViewModel>> GetViewModels()
         {
             var vms = (from c in m_db.Companies
                        join s in m_db.Sites on c.Id equals s.CompanyId
@@ -63,14 +61,12 @@ namespace Playground.core.Controllers
             return Ok(vms);
         }
 
-        [Produces(typeof(Company))]
-        public IActionResult Get(int key)
+        public ActionResult<Company> Get(int key)
         {
             return GetSingleEntity(key);
         }
         
-        [Produces(typeof(IEnumerable<Site>))]
-        public IActionResult GetSites(int key)
+        public ActionResult<IQueryable<Site>> GetSites(int key)
         {
             return GetManyRelated(key, p => p.Sites);
         }

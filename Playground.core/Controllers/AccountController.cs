@@ -41,15 +41,18 @@ namespace Playground.core.Controllers
         [HttpPost(nameof(Login))]
         public async Task<IActionResult> Login(string userName, string password)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                var result = await m_signInManager.PasswordSignInAsync(userName, password, true, false);
-                if (result.Succeeded)
-                {
-                    return Ok();
-                }
+                return Forbid();
             }
-            return Forbid();
+            
+            var result = await m_signInManager.PasswordSignInAsync(userName, password, true, false);
+            if (!result.Succeeded)
+            {
+                return Forbid();
+            }
+
+            return NoContent();
         }
 
         //
@@ -72,7 +75,7 @@ namespace Playground.core.Controllers
             {
                 return BadRequest(result.Errors);
             }
-            return Ok();
+            return NoContent();
         }
 
         //
@@ -83,7 +86,7 @@ namespace Playground.core.Controllers
         public async Task<IActionResult> LogOff()
         {
             await m_signInManager.SignOutAsync();
-            return Ok();
+            return NoContent();
         }
         
         [HttpPost("~/connect/token"), Produces("application/json")]

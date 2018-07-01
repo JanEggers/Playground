@@ -27,12 +27,12 @@ namespace Playground.core.Controllers
 
         protected abstract TKey GetKey(TEntity item);
 
-        protected IActionResult GetAll()
+        protected ActionResult<IQueryable<TEntity>> GetAll()
         {
             return Ok(m_set.AsNoTracking());
         }
 
-        protected IActionResult GetSingleEntity(TKey key)
+        protected ActionResult<TEntity> GetSingleEntity(TKey key)
         {
             var item = m_set.Where(Find(key)).AsNoTracking().FirstOrDefault();
             if (item == null)
@@ -40,10 +40,10 @@ namespace Playground.core.Controllers
                 return NotFound();
             }
 
-            return Ok(item);
+            return item;
         }
 
-        protected IActionResult GetSingleRelated<TRelated>(TKey key, Expression<Func<TEntity, TRelated>> selector)
+        protected ActionResult<TRelated> GetSingleRelated<TRelated>(TKey key, Expression<Func<TEntity, TRelated>> selector)
             where TRelated : class
         {
             var item = m_set.Where(Find(key)).AsNoTracking().FirstOrDefault();
@@ -52,12 +52,11 @@ namespace Playground.core.Controllers
                 return NotFound();
             }
 
-            var items = m_set.Where(Find(key)).Select(selector).AsNoTracking().ToList();
-
-            return Ok(items);
+            var items = m_set.Where(Find(key)).Select(selector).AsNoTracking().FirstOrDefault();
+            return items;
         }
 
-        protected IActionResult GetManyRelated<TRelated>(TKey key, Expression<Func<TEntity, IEnumerable<TRelated>>> selector)
+        protected ActionResult<IQueryable<TRelated>> GetManyRelated<TRelated>(TKey key, Expression<Func<TEntity, IEnumerable<TRelated>>> selector)
             where TRelated : class
         {
             var item = m_set.Where(Find(key)).AsNoTracking().FirstOrDefault();
@@ -66,7 +65,7 @@ namespace Playground.core.Controllers
                 return NotFound();
             }
 
-            var items = m_set.Where(Find(key)).SelectMany(selector).AsNoTracking().ToList();
+            var items = m_set.Where(Find(key)).SelectMany(selector).AsNoTracking();
 
             return Ok(items);
         }

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.JsonPatch;
 using Playground.core.Models;
 using System.Collections.Generic;
 using Microsoft.AspNet.OData;
+using System.Linq;
 
 namespace Playground.core.Controllers
 {
@@ -30,21 +31,18 @@ namespace Playground.core.Controllers
             return item.Id;
         }
 
-        [Produces(typeof(IEnumerable<Site>))]
         [HttpGet]
-        public IActionResult Get()
+        public ActionResult<IQueryable<Site>> Get()
         {
             return GetAll();
         }
 
-        [Produces(typeof(Site))]
-        public IActionResult Get(int key)
+        public ActionResult<Site> Get(int key)
         {
             return GetSingleEntity(key);
         }
 
-        [Produces(typeof(Company))]
-        public IActionResult GetCompany(int key)
+        public ActionResult<Company> GetCompany(int key)
         {
             return GetSingleRelated(key, p => p.Company);
         }
