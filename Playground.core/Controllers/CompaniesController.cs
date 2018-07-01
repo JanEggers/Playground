@@ -13,7 +13,7 @@ using AutoMapper;
 
 namespace Playground.core.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [EnableQuery]
     public class CompaniesController : EntityController<Company,int>
     {
