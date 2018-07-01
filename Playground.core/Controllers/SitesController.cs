@@ -12,7 +12,7 @@ using System.Linq;
 
 namespace Playground.core.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [EnableQuery]
     public class SitesController : EntityController<Site, int>  
     {
