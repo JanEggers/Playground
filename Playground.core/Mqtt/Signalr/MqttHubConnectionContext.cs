@@ -18,7 +18,7 @@ namespace Playground.core.Mqtt.Signalr
             : base(connectionContext, keepAliveInterval, loggerFactory)
         {
             this.connectionContext = connectionContext;
-            
+
             var p = typeof(HubConnectionContext).GetProperty("Protocol", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
 
             p.SetValue(this, protocol);

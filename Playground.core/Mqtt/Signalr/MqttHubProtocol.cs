@@ -49,11 +49,8 @@ namespace Playground.core.Mqtt.Signalr
             {
                 return;
             }
-            var buffer = _serializer.Serialize(packet);            
-            foreach (var chunk in buffer)
-            {
-                output.Write(chunk.Array.AsSpan(chunk.Offset, chunk.Count));
-            }
+            var buffer = _serializer.Serialize(packet);
+            output.Write(buffer.Array.AsSpan(buffer.Offset, buffer.Count));
         }
 
         public ReadOnlyMemory<byte> GetMessageBytes(HubMessage message)

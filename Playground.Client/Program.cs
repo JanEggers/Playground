@@ -1,10 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
+using MQTTnet;
+using MQTTnet.AspNetCore.Client;
+using MQTTnet.Client;
 using MQTTnet.Packets;
 using MQTTnet.Serializer;
 using Newtonsoft.Json;
-using Playground.Client.Mqtt.Tcp;
-using Playground.core.Mqtt;
-using Playground.core.Mqtt.Signalr;
 using System;
 using System.Diagnostics;
 using System.Net;
@@ -26,48 +26,25 @@ namespace Playground.Client
         {
             try
             {
+                var factory = new MqttFactory();
                 var endpoint = new IPEndPoint(IPAddress.Loopback, 1883);
-                var loggerFactory = new LoggerFactory();
-                var connection = new TcpConnection(endpoint);
-                var serializer = new MqttPacketSerializer();
-                var mqtt = new MqttConnectionContext(serializer, connection);
 
-                //var connection = new HubConnectionBuilder()
-                //   .ConfigureLogging(logging =>
-                //   {
-                //       logging.AddConsole();
-                //   })
-                //   .WithEndPoint(endpoint)
-                //   .ConfigureServices(s => {
-                //       s.AddTransient<IHubProtocol, MqttHubProtocol>();
-                //       s.AddSingleton<MqttPacketSerializer>();
-                //   })
-                //   .Build();
-
+                var client = factory.CreateMqttClient(new MqttClientConnectionContextFactory());
+                
                 while (true)
                 {
                     try
                     {
-                        await connection.StartAsync();
+                        var options = new MqttClientOptionsBuilder()
+                            .WithTcpServer("localhost", 1883)
+                            .Build();
+
+                        await client.ConnectAsync(options);
                         break;
                     }
                     catch (Exception)
                     {
                     }
-                }
-
-                try
-                {
-                    await mqtt.ConnectAsync(new MqttConnectPacket());
-                    //await mqtt.SubscribeAsync(new MQTTnet.Packets.MqttSubscribePacket()
-                    //{
-                    //    TopicFilters = new List<TopicFilter>() { new TopicFilter("#", MQTTnet.Protocol.MqttQualityOfServiceLevel.AtLeastOnce) }
-                    //});
-                }
-                catch (Exception)
-                {
-
-                    throw;
                 }
 
                 var sw = new Stopwatch();
@@ -77,7 +54,7 @@ namespace Playground.Client
                 long payload = 0;
                 while (true)
                 {
-                    var p = new MQTTnet.Packets.MqttPublishPacket()
+                    var p = new MqttApplicationMessage()
                     {
                         Topic = "Step",
                         Payload = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(payload))
@@ -85,7 +62,7 @@ namespace Playground.Client
 
                     payload++;
 
-                    await mqtt.PublishAsync(p);
+                    await client.PublishAsync(p);
 
                     if (sw.Elapsed > TimeSpan.FromSeconds(5))
                     {

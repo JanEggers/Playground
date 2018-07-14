@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Configuration;
 using Playground.core.Hubs;
 using Microsoft.Extensions.Configuration;
+using MQTTnet.AspNetCore;
 using Playground.core.Mqtt.Signalr;
 using Playground.core.Mqtt;
 
@@ -24,7 +25,7 @@ namespace Playground.core
 
                     //o.ListenAnyIP(1883, l => l.UseHub<MqttHub>());
                     //o.ListenAnyIP(1883, l => l.UseConnectionHandler<MqttHubConnectionHandler<MqttHub>>());
-                    o.ListenAnyIP(1883, l => l.UseConnectionHandler<MqttConnectionHandler>());
+                    o.ListenAnyIP(1883, l => l.UseMqtt());
                 })
                 .UseIISIntegration()
                 .UseContentRoot(Directory.GetCurrentDirectory())

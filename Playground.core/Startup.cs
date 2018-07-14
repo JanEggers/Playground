@@ -126,13 +126,11 @@ namespace Playground.core
             services.AddSingleton<MqttHubProtocol>();
             services.AddSingleton<MqttPacketSerializer>();
 
-            services.AddHostedMqttServer(new MqttServerOptions());
-            foreach (var item in services.Where(s => s.ServiceType == typeof(IMqttServerAdapter)).ToList())
-            {
-                services.Remove(item);
-            }
-            
-            services.AddSingleton<IMqttServerAdapter>(s => s.GetRequiredService<MqttConnectionHandler>());
+            services.AddHostedMqttServer(o => {
+
+            })
+            .AddConnections()
+            .AddMqttConnectionHandler();
 
 
             MqttNetGlobalLogger.LogMessagePublished += (sender, e) =>
