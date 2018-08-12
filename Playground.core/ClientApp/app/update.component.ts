@@ -4,8 +4,9 @@
     Http,
     Headers,
     HubConnection,
-    HttpConnection,
-    TransportType,
+    HttpTransportType,
+    HubConnectionBuilder,
+    SignalrLogLevel
 } from "./vendor";
 
 //npm install signalr-client --registry https://dotnet.myget.org/f/aspnetcore-ci-dev/npm/
@@ -39,13 +40,17 @@ export class UpdateComponent {
     constructor() { 
         this.messages = [];
 
-        this.connection = new HubConnection(`http://${document.location.host}/updates`, { transport: TransportType.WebSockets });
+        this.connection = new HubConnectionBuilder()
+            .configureLogging(SignalrLogLevel.Trace)
+            .withUrl("/updates", HttpTransportType.WebSockets)
+            .build();
 
         this.connection.on('Send', (message) => {
             this.messages.push(message);
         });
 
         this.start = this.connection.start();
+        this.stream();
     }
 
     async send() {
@@ -53,6 +58,35 @@ export class UpdateComponent {
             await this.start;
             this.error = "";
             await this.connection.invoke('Send', this.message);
+            this.message = "";
+        } catch (error) {
+            this.error = error;
+        }
+    }
+
+    async stream() {
+        try {
+            await this.start;
+            this.error = "";
+            var count = 0;
+            var sub = this.connection.stream<Date>('Tick').subscribe({
+                closed: false,
+                next: (item) => {
+                    count++;
+                    this.messages.push(item.toString());
+
+                    if (count > 5)
+                    {
+                        sub.dispose();
+                    }
+                },
+                error: (err) => {
+                    this.messages.push(err);
+                },
+                complete: () => {
+                    this.messages.push('completed');
+                }
+            });
             this.message = "";
         } catch (error) {
             this.error = error;

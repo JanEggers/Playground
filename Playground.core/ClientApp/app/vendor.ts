@@ -35,8 +35,9 @@ export {
 
 export {
     HubConnection,
-    HttpConnection,
-    TransportType
+    HttpTransportType,
+    HubConnectionBuilder,
+    LogLevel as SignalrLogLevel
 } from '@aspnet/signalr';
 
 export * from 'rxjs';

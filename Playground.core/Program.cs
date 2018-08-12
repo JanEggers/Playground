@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace Playground.core
 {
@@ -12,6 +13,9 @@ namespace Playground.core
                 .UseIISIntegration()
                 .UseContentRoot(Directory.GetCurrentDirectory())
                 .UseStartup<Startup>()
+                .ConfigureLogging(l => {
+                    l.AddConsole();
+                })
                 .Build();
 
             host.Run();
