@@ -3,6 +3,6 @@
   "name": "asp.net",
   "private": true,
   "devDependencies": {
-    "autorest": "1.2.2"
+    "autorest": "3.0.6187"
   }
 }
