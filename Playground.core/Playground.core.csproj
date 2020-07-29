@@ -48,7 +48,7 @@
     <PackageReference Include="OpenIddict.EntityFrameworkCore" Version="2.0.0-preview1-0648" />
     <PackageReference Include="OpenIddict.Models" Version="2.0.0-preview1-0648" />
     <PackageReference Include="OpenIddict.Mvc" Version="2.0.0-preview1-0648" />
-    <PackageReference Include="Serilog.Extensions.Logging" Version="2.0.2" />
+    <PackageReference Include="Serilog.Extensions.Logging" Version="3.0.1" />
     <PackageReference Include="Serilog.Sinks.RollingFile" Version="3.3.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="2.5.0" />
     <PackageReference Include="System.Reactive" Version="4.0.0" />
