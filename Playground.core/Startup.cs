@@ -85,12 +85,15 @@ namespace Playground.core
                         server.UseMvc();
 
                         server
-                        // Enable the authorization, logout, token and userinfo endpoints.
-                        .EnableTokenEndpoint("/connect/token")
-                        .AllowPasswordFlow()
-                        .AllowRefreshTokenFlow()
-                        .DisableHttpsRequirement()
-                        ;
+                            // Enable the authorization, logout, token and userinfo endpoints.
+                            .EnableTokenEndpoint("/connect/token")
+                            .AllowPasswordFlow()
+                            .AllowRefreshTokenFlow()
+                            .DisableHttpsRequirement()
+                            .AcceptAnonymousClients()
+                            ;
+
+                        server.RegisterScopes(SecurityRequirementsOperationFilter.DefaultScope);
                     })                    
                     ;
             });

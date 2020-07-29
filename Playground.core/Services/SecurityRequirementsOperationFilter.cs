@@ -29,11 +29,13 @@ public class SecurityRequirementsOperationFilter : IOperationFilter
                 TokenUrl = new System.Uri("/connect/token", System.UriKind.Relative),
                 Scopes = new Dictionary<string, string>() 
                 {
-                    { "default", "generic access scope" }
+                    { DefaultScope, "generic access scope" }
                 } 
             }
         }
     };
+
+    public const string DefaultScope = "default";
 
     public void Apply(OpenApiOperation operation, OperationFilterContext context)
     {
@@ -57,7 +59,7 @@ public class SecurityRequirementsOperationFilter : IOperationFilter
 
         if (!requiredClaimTypes.Any())
         {
-            requiredClaimTypes.Add( "default" );
+            requiredClaimTypes.Add(DefaultScope);
         }
 
 

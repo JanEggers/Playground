@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Playground.core.Models
 {
-    public class PlaygroundContext : IdentityDbContext<PlaygroundUser>
+    public class PlaygroundContext :  IdentityDbContext<PlaygroundUser>
     {
         public PlaygroundContext(DbContextOptions<PlaygroundContext> options)
             : base(options)
@@ -29,6 +29,8 @@ namespace Playground.core.Models
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
+            builder.UseOpenIddict();
+
             builder.Entity<Company>()
                 .ToTable( "Companies" );
 
