@@ -1,13 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.JsonPatch.Operations;
 using Microsoft.Extensions.Options;
 using System.Collections.Generic;
 using System.Linq;
-using System;
-using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.OpenApi.Models;
+using AspNet.Security.OAuth.Validation;
 
 public class SecurityRequirementsOperationFilter : IOperationFilter
 {
@@ -22,11 +20,17 @@ public class SecurityRequirementsOperationFilter : IOperationFilter
     public static OpenApiSecurityScheme Scheme { get; } = new OpenApiSecurityScheme()
     {
         Type = SecuritySchemeType.OAuth2,
+        Scheme = OAuthValidationDefaults.AuthenticationScheme,
+        Name = "oauth2",
         Flows = new OpenApiOAuthFlows()
         {
             Password = new OpenApiOAuthFlow()
             {
                 TokenUrl = new System.Uri("/connect/token", System.UriKind.Relative),
+                Scopes = new Dictionary<string, string>() 
+                {
+                    { "default", "generic access scope" }
+                } 
             }
         }
     };
@@ -58,7 +62,14 @@ public class SecurityRequirementsOperationFilter : IOperationFilter
 
 
         var requirement = new OpenApiSecurityRequirement();
-        requirement[Scheme] = requiredClaimTypes;
+        requirement[new OpenApiSecurityScheme()
+        {
+            Reference = new OpenApiReference
+            {
+                Type = ReferenceType.SecurityScheme,
+                Id = Scheme.Scheme
+            }
+        }] = requiredClaimTypes;
 
         operation.Security = new List<OpenApiSecurityRequirement>();
         operation.Security.Add(requirement);

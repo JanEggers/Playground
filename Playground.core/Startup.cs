@@ -106,7 +106,7 @@ namespace Playground.core
             {
                 options.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
                                 
-                options.AddSecurityDefinition("default", SecurityRequirementsOperationFilter.Scheme);
+                options.AddSecurityDefinition(OAuthValidationDefaults.AuthenticationScheme, SecurityRequirementsOperationFilter.Scheme);
                 options.OperationFilter<SecurityRequirementsOperationFilter>();
             });
 
