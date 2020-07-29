@@ -1,22 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using Playground.core.Models;
 using Xunit;
-using Microsoft.EntityFrameworkCore.Query.Internal;
-using Microsoft.EntityFrameworkCore.Query.ExpressionVisitors.Internal;
-using System.Linq;
-using System.Reflection;
-using Microsoft.EntityFrameworkCore.Storage;
-using Remotion.Linq.Parsing.Structure;
-using Remotion.Linq.Parsing.Structure.ExpressionTreeProcessors;
-using Remotion.Linq.Parsing.ExpressionVisitors.Transformation;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Remotion.Linq.Parsing.Structure.NodeTypeProviders;
-using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Playground.Core.Test
 {
@@ -45,7 +32,7 @@ namespace Playground.Core.Test
 
             var  context = services.GetService<PlaygroundContext>();
 
-            var nodeTypeProvider = context.GetService<MethodInfoBasedNodeTypeRegistry>();
+            //var nodeTypeProvider = context.GetService<MethodInfoBasedNodeTypeRegistry>();
             //var infos = context.GetService<IRelationalAnnotationProvider>();
 
             //var companies = context.Companies.OfType<CompanySub>().Where( c => c.Name == "wtf" );

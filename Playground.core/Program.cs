@@ -1,6 +1,7 @@
-﻿using System.IO;
+﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace Playground.core
 {
@@ -8,17 +9,19 @@ namespace Playground.core
     {
         public static void Main(string[] args)
         {
-            var host = new WebHostBuilder()
-                .UseKestrel()
-                .UseIISIntegration()
-                .UseContentRoot(Directory.GetCurrentDirectory())
-                .UseStartup<Startup>()
-                .ConfigureLogging(l => {
-                    l.AddConsole();
-                })
-                .Build();
+            using var host = BuildWebHost(args);
 
             host.Run();
         }
+
+        public static IWebHost BuildWebHost(string[] args) =>
+            WebHost.CreateDefaultBuilder(args)
+                .ConfigureLogging((ctx, l) => {
+                    l.AddConsole();
+                    l.AddConfiguration(ctx.Configuration);
+                    l.AddSerilog(ctx.HostingEnvironment.ConfigureSerilog(), true);
+                })
+                .UseStartup<Startup>()
+                .Build();
     }
 }

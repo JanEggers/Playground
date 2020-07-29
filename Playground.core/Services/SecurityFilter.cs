@@ -7,6 +7,7 @@ using System;
 using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
+using Microsoft.OpenApi.Models;
 
 public class SecurityRequirementsOperationFilter : IOperationFilter
 {
@@ -17,17 +18,31 @@ public class SecurityRequirementsOperationFilter : IOperationFilter
         this.authorizationOptions = authorizationOptions;
     }
 
-    public void Apply(Swashbuckle.AspNetCore.Swagger.Operation operation, OperationFilterContext context)
+
+    public static OpenApiSecurityScheme Scheme { get; } = new OpenApiSecurityScheme()
     {
-        var authrizations = context.ControllerActionDescriptor.GetControllerAndActionAttributes(true)
+        Type = SecuritySchemeType.OAuth2,
+        Flows = new OpenApiOAuthFlows()
+        {
+            Password = new OpenApiOAuthFlow()
+            {
+                TokenUrl = new System.Uri("/connect/token", System.UriKind.Relative),
+            }
+        }
+    };
+
+    public void Apply(OpenApiOperation operation, OperationFilterContext context)
+    {
+        var authrizations = context.MethodInfo.DeclaringType.GetCustomAttributes(true)
+            .Union(context.MethodInfo.GetCustomAttributes(true))
             .OfType<AuthorizeAttribute>();
 
         if (!authrizations.Any()) {
             return;
         }
 
-        operation.Responses.Add( "401", new Response { Description = "Unauthorized" });
-        operation.Responses.Add( "403", new Response { Description = "Forbidden" } );
+        operation.Responses.Add( "401", new OpenApiResponse { Description = "Unauthorized" });
+        operation.Responses.Add( "403", new OpenApiResponse { Description = "Forbidden" } );
 
         var requiredClaimTypes = authrizations
             .Select(x => x.Policy != null ? authorizationOptions.Value.GetPolicy(x.Policy) : authorizationOptions.Value.DefaultPolicy)
@@ -42,11 +57,10 @@ public class SecurityRequirementsOperationFilter : IOperationFilter
         }
 
 
-        operation.Security = new List<IDictionary<string, IEnumerable<string>>>();
-        operation.Security.Add(
-            new Dictionary<string, IEnumerable<string>>
-            {
-                { "default", requiredClaimTypes }
-            } );
+        var requirement = new OpenApiSecurityRequirement();
+        requirement[Scheme] = requiredClaimTypes;
+
+        operation.Security = new List<OpenApiSecurityRequirement>();
+        operation.Security.Add(requirement);
     }
 }

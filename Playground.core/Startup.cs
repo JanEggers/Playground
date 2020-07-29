@@ -1,10 +1,8 @@
-﻿using System.IO;
-using JSNLog;
+﻿using JSNLog;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 using Microsoft.Extensions.Configuration;
@@ -19,29 +17,22 @@ using Playground.core.Hubs;
 using Playground.core.Services;
 using Microsoft.AspNet.OData.Extensions;
 using Playground.core.Odata;
-using Serilog;
-using Serilog.Events;
-
-using Swashbuckle.AspNetCore.Swagger;
-using Microsoft.AspNet.OData.Formatter;
-using Microsoft.Net.Http.Headers;
 using System.Linq;
+using Microsoft.OpenApi.Models;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Net.Http.Headers;
+using Microsoft.AspNet.OData.Formatter;
 
 namespace Playground.core
 {
     public class Startup
     {
-        public Startup(IHostingEnvironment env)
+        public Startup(IConfiguration configuration)
         {
-            var builder = new ConfigurationBuilder()
-                .SetBasePath(env.ContentRootPath)
-                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
-                .AddEnvironmentVariables();
-            Configuration = builder.Build();
+            Configuration = configuration;
         }
 
-        public IConfigurationRoot Configuration { get; }
+        public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -52,10 +43,8 @@ namespace Playground.core
             services.AddMvc();
             
             services.AddDbContext<PlaygroundContext>(o => {
-                o.UseSqlServer(Configuration.GetSection("PlaygroundContext:ConnectionString").Value);
+                o.UseSqlServer(Configuration.GetConnectionString("PlaygroundContext"));
                 o.UseLazyLoadingProxies();
-
-                //o.UseOpenIddict();
             });
 
             // Register the Identity services.
@@ -82,17 +71,27 @@ namespace Playground.core
 
             services.AddOpenIddict(options => {
                 options
-                    // Register the Entity Framework stores.
-                    .AddEntityFrameworkCoreStores<PlaygroundContext>()
-                    // Register the ASP.NET Core MVC binder used by OpenIddict.
-                    // Note: if you don't call this method, you won't be able to
-                    // bind OpenIdConnectRequest or OpenIdConnectResponse parameters.
-                    .AddMvcBinders()
-                    // Enable the authorization, logout, token and userinfo endpoints.
-                    .EnableTokenEndpoint("/connect/token")
-                    .AllowPasswordFlow()
-                    .AllowRefreshTokenFlow()
-                    .DisableHttpsRequirement()
+                    .AddCore(core => {
+                        // Register the Entity Framework stores.
+                        core
+                            .UseEntityFrameworkCore()
+                            .UseDbContext<PlaygroundContext>();
+                    })
+                    .AddServer(server =>
+                    {
+                        // Register the ASP.NET Core MVC binder used by OpenIddict.
+                        // Note: if you don't call this method, you won't be able to
+                        // bind OpenIdConnectRequest or OpenIdConnectResponse parameters.
+                        server.UseMvc();
+
+                        server
+                        // Enable the authorization, logout, token and userinfo endpoints.
+                        .EnableTokenEndpoint("/connect/token")
+                        .AllowPasswordFlow()
+                        .AllowRefreshTokenFlow()
+                        .DisableHttpsRequirement()
+                        ;
+                    })                    
                     ;
             });
 
@@ -105,21 +104,15 @@ namespace Playground.core
 
             services.AddSwaggerGen(options =>
             {
-                options.SwaggerDoc("v1", new Info { Title = "My API", Version = "v1" });
-
-                options.AddSecurityDefinition("default", new OAuth2Scheme()
-                {
-                    Flow = "password",
-                    TokenUrl = "/connect/token"
-                });
-
-                options.DocumentFilter<CustomSchemaFilter>();
+                options.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
+                                
+                options.AddSecurityDefinition("default", SecurityRequirementsOperationFilter.Scheme);
                 options.OperationFilter<SecurityRequirementsOperationFilter>();
             });
 
             services.AddSignalR();
 
-            services.AddTransient<SeedService>();
+            services.AddScoped<SeedService>();
             services.AddTransient<PlaygroundModelBuilder>();
 
             services.AddOData();
@@ -141,42 +134,29 @@ namespace Playground.core
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
-            loggerFactory.AddConsole(Configuration.GetSection("Logging"));
-            loggerFactory.AddSerilog();
-
             var jsnlogConfiguration = new JsnlogConfiguration();
             app.UseJSNLog( new LoggingAdapter( loggerFactory ), jsnlogConfiguration );
 
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                loggerFactory.AddDebug();
             }
-
-            ConfigureSeriLog( env );
 
             app.UseAuthentication();
 
-            app.Use(async (context, next) =>
-            {
-                if (context.Request.Path.Value != "/")
-                {
-                    await next();
-                }
-                else
-                {
-                    context.Request.Path = "/index.html";
-                    await next();
-                }
-            });
-
             app.UseStaticFiles();
-            
-            app.UseMvc( builder => {
+            app.UseDefaultFiles();
 
-                builder
+            app.UseRouting();
+
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
+            {
+
+                endpoints
                     .Count()
                     .Expand()
                     .Filter()
@@ -185,13 +165,12 @@ namespace Playground.core
                     ;
 
                 var edmModel = app.ApplicationServices.GetRequiredService<PlaygroundModelBuilder>().GetEdmModel();
-                builder.MapODataServiceRoute("odata", "odata", edmModel);
+                endpoints.MapODataRoute("odata", "odata", edmModel);
 
-                builder.MapRoute("default", "api/{controller}/{action}");
-                
-                // Workaround: https://github.com/OData/WebApi/issues/1175
-                builder.EnableDependencyInjection();
-            } );
+                endpoints.MapControllers();
+
+                endpoints.MapHub<UpdateHub>("/updates");
+            });
             
             app.UseSwagger();
 
@@ -200,38 +179,12 @@ namespace Playground.core
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
             });
 
-            app.ApplicationServices.GetRequiredService<SeedService>().Seed();
+            var scopeFactory = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>();
 
-            app.UseSignalR(routes =>
+            using (var scope = scopeFactory.CreateScope())
             {
-                routes.MapHub<UpdateHub>("/updates");
-            });
-        }
-
-        private void ConfigureSeriLog( IHostingEnvironment env )
-        {
-            string directory;
-            if ( env.IsDevelopment() )
-            {
-                directory = $"{env.ContentRootPath}\\Tracing\\";
+                scope.ServiceProvider.GetRequiredService<SeedService>().Seed();
             }
-            else
-            {
-                directory = $"{env.ContentRootPath}\\..\\Tracing\\";
-            }
-
-            if ( !Directory.Exists( directory ) )
-            {
-                Directory.CreateDirectory( directory );
-            }
-
-            var config = new LoggerConfiguration()
-                .WriteTo.RollingFile( $"{directory}{{Date}}.log", outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz}\t[{Level:w3}]\t{Message}\t[{SourceContext}]{NewLine}{Exception}" );
-
-            config.MinimumLevel.Is( LogEventLevel.Debug );
-
-            var logger = config.CreateLogger();
-            Log.Logger = logger;
         }
     }
 }
