@@ -1,7 +1,4 @@
-﻿import {
-    Component
-} from './vendor'
-
+﻿import { Component } from '@angular/core';
 
 @Component({
     selector: "playground",

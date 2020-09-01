@@ -1,8 +1,5 @@
-﻿import { 
-    Component, 
-    Injectable,
-    Http 
-} from "./vendor";
+﻿import { Component } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
     selector: "register",
@@ -23,7 +20,7 @@
 })
 export class RegisterComponent {
 
-    constructor(private http: Http) {
+    constructor(private http: HttpClient) {
         this.user = "someone";
         this.password = "pass";
     }

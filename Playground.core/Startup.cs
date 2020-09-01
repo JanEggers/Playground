@@ -188,6 +188,14 @@ namespace Playground.core
             {
                 scope.ServiceProvider.GetRequiredService<SeedService>().Seed();
             }
+
+            app.UseSpa(spa  => 
+            {
+                if (env.IsDevelopment()) 
+                {
+                    spa.UseProxyToSpaDevelopmentServer("http://localhost:4200");
+                }
+            });
         }
     }
 }

@@ -1,9 +1,5 @@
-﻿import { 
-    Component, 
-    Injectable,
-    Http,
-    Headers,
-} from "./vendor";
+﻿import { Component } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 @Component({
     selector: "login",
@@ -24,7 +20,7 @@
 })
 export class LoginComponent {
 
-    constructor(public http: Http) {
+    constructor(public http: HttpClient) {
         this.user = "someone";
         this.password = "pass";
     }
@@ -37,7 +33,7 @@ export class LoginComponent {
     async login(): Promise<any> {
         try {
 
-            var headers = new Headers();
+            var headers = new HttpHeaders();
             headers.append("Content-Type", "application/x-www-form-urlencoded");
 
             var request: string = "/connect/token";
@@ -47,8 +43,6 @@ export class LoginComponent {
             var response = await this.http.post(request, body, {
                 headers: headers,
             }).toPromise();
-
-            var data = response.json();
         } catch (error) {
             this.handleError(error);
         }

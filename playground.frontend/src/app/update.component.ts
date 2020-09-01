@@ -1,16 +1,5 @@
-﻿import {
-    Component,
-    Injectable,
-    Http,
-    Headers,
-    HubConnection,
-    HttpTransportType,
-    HubConnectionBuilder,
-    SignalrLogLevel
-} from "./vendor";
-
-//npm install signalr-client --registry https://dotnet.myget.org/f/aspnetcore-ci-dev/npm/
-
+﻿import { Component } from '@angular/core';
+import { HubConnection, HubConnectionBuilder, HttpTransportType, LogLevel } from '@aspnet/signalr';
 
 @Component({
     selector: "update",
@@ -41,7 +30,7 @@ export class UpdateComponent {
         this.messages = [];
 
         this.connection = new HubConnectionBuilder()
-            .configureLogging(SignalrLogLevel.Trace)
+            .configureLogging(LogLevel.Trace)
             .withUrl("/updates", HttpTransportType.WebSockets)
             .build();
 
