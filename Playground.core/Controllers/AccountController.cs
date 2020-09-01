@@ -90,15 +90,15 @@ namespace Playground.core.Controllers
         }
         
         [HttpPost("~/connect/token"), Produces("application/json")]
-        public async Task<IActionResult> Exchange( [FromForm] OpenIdConnectRequest request)
+        public async Task<IActionResult> Exchange( [FromForm] OpenIdConnectRequest connectRequest)
         {
-            Debug.Assert(request.IsTokenRequest(),
+            Debug.Assert(connectRequest.IsTokenRequest(),
                 "The OpenIddict binder for ASP.NET Core MVC is not registered. " +
                 "Make sure services.AddOpenIddict().AddMvcBinders() is correctly called.");
 
-            if (request.IsPasswordGrantType())
+            if (connectRequest.IsPasswordGrantType())
             {
-                var user = await m_userManager.FindByNameAsync(request.Username);
+                var user = await m_userManager.FindByNameAsync(connectRequest.Username);
                 if (user == null)
                 {
                     return BadRequest(new OpenIdConnectResponse
@@ -139,7 +139,7 @@ namespace Playground.core.Controllers
                 }
 
                 // Ensure the password is valid.
-                if (!await m_userManager.CheckPasswordAsync(user, request.Password))
+                if (!await m_userManager.CheckPasswordAsync(user, connectRequest.Password))
                 {
                     if (m_userManager.SupportsUserLockout)
                     {
@@ -159,12 +159,12 @@ namespace Playground.core.Controllers
                 }
 
                 // Create a new authentication ticket.
-                var ticket = await CreateTicketAsync(request, user);
+                var ticket = await CreateTicketAsync(connectRequest, user);
 
                 return SignIn(ticket.Principal, ticket.Properties, ticket.AuthenticationScheme);
             }
 
-            else if (request.IsAuthorizationCodeGrantType() || request.IsRefreshTokenGrantType())
+            else if (connectRequest.IsAuthorizationCodeGrantType() || connectRequest.IsRefreshTokenGrantType())
             {
                 // Retrieve the claims principal stored in the authorization code/refresh token.
                 var info = await HttpContext.AuthenticateAsync();
@@ -195,7 +195,7 @@ namespace Playground.core.Controllers
 
                 // Create a new authentication ticket, but reuse the properties stored in the
                 // authorization code/refresh token, including the scopes originally granted.
-                var ticket = await CreateTicketAsync(request, user, info.Properties);
+                var ticket = await CreateTicketAsync(connectRequest, user, info.Properties);
 
                 return SignIn(ticket.Principal, ticket.Properties, ticket.AuthenticationScheme);
             }
