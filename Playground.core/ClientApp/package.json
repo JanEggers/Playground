@@ -3,6 +3,7 @@
   "name": "playground",
   "private": true,
   "dependencies": {
+    "@angular-devkit/schematics": "^10.0.8",
     "@angular/common": "6.0.0-beta.1",
     "@angular/compiler": "6.0.0-beta.1",
     "@angular/core": "6.0.0-beta.1",
