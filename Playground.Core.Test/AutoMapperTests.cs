@@ -14,14 +14,12 @@ namespace Playground.Core.Test
         [Fact]
         public void Test()
         {
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddDbContext<PlaygroundContext>(o => {
-                o.UseInMemoryDatabase( nameof( PlaygroundContext ) );
-            });
-
-            serviceCollection.AddMappings();
-
-            var services = serviceCollection.BuildServiceProvider();
+            using var services = new ServiceCollection()
+                .AddDbContext<PlaygroundContext>(o => {
+                    o.UseInMemoryDatabase( nameof( PlaygroundContext ) );
+                })
+                .AddMappings()
+                .BuildServiceProvider();
 
             using var context = services.GetService<PlaygroundContext>();
             var mapping = services.GetService<IConfigurationProvider>();
