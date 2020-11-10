@@ -7,13 +7,6 @@ namespace Playground.core.Models
 {
     public class CompanyViewModel
     {
-        static int count;
-
-        public CompanyViewModel()
-        {
-            count++;
-        }
-
         public int Id { get; set; }
 
         public string Name { get; set; }

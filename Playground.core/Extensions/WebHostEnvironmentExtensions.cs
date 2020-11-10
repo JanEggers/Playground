@@ -27,7 +27,12 @@ namespace Microsoft.AspNetCore.Hosting
 
             var config = new LoggerConfiguration()
                 .WriteTo
-                .RollingFile($"{directory}{{Date}}.log", outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz}\t[{Level:w3}]\t{Message}\t[{SourceContext}]{NewLine}{Exception}");
+                .File($"{directory}{{Date}}.log", 
+                outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz}\t[{Level:w3}]\t{Message}\t[{SourceContext}]{NewLine}{Exception}",
+                rollingInterval: RollingInterval.Day,
+                fileSizeLimitBytes: 10_000_000,
+                rollOnFileSizeLimit: true                
+                );
 
             config.MinimumLevel.Is(LogEventLevel.Debug);
 

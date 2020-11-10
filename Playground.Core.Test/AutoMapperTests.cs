@@ -23,38 +23,36 @@ namespace Playground.Core.Test
 
             var services = serviceCollection.BuildServiceProvider();
 
-            using (var context = services.GetService<PlaygroundContext>())
+            using var context = services.GetService<PlaygroundContext>();
+            var mapping = services.GetService<IConfigurationProvider>();
+
+            context.Companies.Add(new Company()
             {
-                var mapping = services.GetService<IConfigurationProvider>();
+                Name = "A"
+            });
 
-                context.Companies.Add(new Company()
-                {
-                    Name = "A"
-                });
+            context.SaveChanges();
+            var companyQuery = context.Companies
+                .ProjectTo<CompanyViewModel>(mapping);
 
-                context.SaveChanges();
-                var companyQuery = context.Companies
-                    .ProjectTo<CompanyViewModel>(mapping);
+            var companies = companyQuery.ToList();
 
-                var companies = companyQuery.ToList();
+            context.Companies.Add(new Company()
+            {
+                Name = "B"
+            });
 
-                context.Companies.Add(new Company()
-                {
-                    Name = "B"
-                });
+            context.SaveChanges();
 
-                context.SaveChanges();
+            companies[0].Name = "x";
 
-                companies[0].Name = "x";
+            companyQuery.ProjectInto(companies, mapping);
 
-                companyQuery.ProjectInto(companies, mapping);
+            context.Companies.Remove(context.Companies.First());
 
-                context.Companies.Remove(context.Companies.First());
+            context.SaveChanges();
 
-                context.SaveChanges();
-                
-                companyQuery.ProjectInto(companies, mapping);
-            }
+            companyQuery.ProjectInto(companies, mapping);
         }
     }
 
@@ -63,25 +61,23 @@ namespace Playground.Core.Test
         public static void ProjectInto<T>(this IQueryable<T> query, IList<T> target, IConfigurationProvider configurationProvider)
         {            
             var mapper = configurationProvider.CreateMapper();
-            using (var enumerator = query.GetEnumerator())
+            using var enumerator = query.GetEnumerator();
+            for (int i = 0; i < target.Count; i++)
             {
-                for (int i = 0; i < target.Count; i++)
+                if (enumerator.MoveNext())
                 {
-                    if (enumerator.MoveNext())
-                    {
-                        mapper.Map(enumerator.Current, target[i]);
-                    }
-                    else
-                    {
-                        target.RemoveAt(i);
-                        i--;
-                    }
+                    mapper.Map(enumerator.Current, target[i]);
                 }
+                else
+                {
+                    target.RemoveAt(i);
+                    i--;
+                }
+            }
 
-                while (enumerator.MoveNext())
-                {
-                    target.Add(enumerator.Current);
-                }
+            while (enumerator.MoveNext())
+            {
+                target.Add(enumerator.Current);
             }
         }
     }
