@@ -1,12 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.Extensions.Options;
-using System.Collections.Generic;
-using System.Linq;
-using Swashbuckle.AspNetCore.SwaggerGen;
-using Microsoft.AspNetCore.Authorization.Infrastructure;
-using Microsoft.OpenApi.Models;
-using AspNet.Security.OAuth.Validation;
-
+﻿namespace Playground.core.Services;
 public class SecurityRequirementsOperationFilter : IOperationFilter
 {
     private readonly IOptions<AuthorizationOptions> authorizationOptions;
@@ -20,7 +12,7 @@ public class SecurityRequirementsOperationFilter : IOperationFilter
     public static OpenApiSecurityScheme Scheme { get; } = new OpenApiSecurityScheme()
     {
         Type = SecuritySchemeType.OAuth2,
-        Scheme = OAuthValidationDefaults.AuthenticationScheme,
+        Scheme = Constant.AuthenticationScheme,
         Name = "oauth2",
         Flows = new OpenApiOAuthFlows()
         {
