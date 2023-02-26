@@ -1,4 +1,6 @@
-﻿namespace Playground.core.Controllers;
+﻿using Playground.core.Services;
+
+namespace Playground.core.Controllers;
 
 //[Authorize]
 [EnableQuery]
@@ -26,6 +28,7 @@ public class CompaniesController : EntityController<Company,int>
     /// Companies?$filter=Name eq 'C700'
     /// </summary>
     /// <returns></returns>
+    [ProducesResponseType(typeof(OdataResponse<IEnumerable<Company>>), 200)]
     [HttpGet]
     public ActionResult<IQueryable<Company>> Get()
     {
@@ -52,7 +55,8 @@ public class CompaniesController : EntityController<Company,int>
     {
         return GetSingleEntity(key);
     }
-    
+
+    [ProducesResponseType(typeof(OdataResponse<IEnumerable<Site>>), 200)]
     public ActionResult<IQueryable<Site>> GetSites(int key)
     {
         return GetManyRelated(key, p => p.Sites);

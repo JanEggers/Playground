@@ -1,0 +1,41 @@
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="Playground.core.Models" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <EntityType Name="Company">
+        <Key>
+          <PropertyRef Name="Id" />
+        </Key>
+        <Property Name="Id" Type="Edm.Int32" Nullable="false" />
+        <Property Name="Name" Type="Edm.String" />
+        <NavigationProperty Name="Sites" Type="Collection(Playground.core.Models.Site)" />
+      </EntityType>
+      <EntityType Name="Site">
+        <Key>
+          <PropertyRef Name="Id" />
+        </Key>
+        <Property Name="Id" Type="Edm.Int32" Nullable="false" />
+        <Property Name="Name" Type="Edm.String" />
+        <Property Name="CompanyId" Type="Edm.Int32" />
+        <NavigationProperty Name="Company" Type="Playground.core.Models.Company">
+          <ReferentialConstraint Property="CompanyId" ReferencedProperty="Id" />
+        </NavigationProperty>
+      </EntityType>
+      <EntityType Name="CompanySub" BaseType="Playground.core.Models.Company">
+        <Property Name="Sub" Type="Edm.Int32" Nullable="false" />
+      </EntityType>
+      <EntityType Name="CompanySub2" BaseType="Playground.core.Models.Company">
+        <Property Name="Sub2" Type="Edm.Int32" Nullable="false" />
+      </EntityType>
+    </Schema>
+    <Schema Namespace="Default" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <EntityContainer Name="Container">
+        <EntitySet Name="Companies" EntityType="Playground.core.Models.Company">
+          <NavigationPropertyBinding Path="Sites" Target="Sites" />
+        </EntitySet>
+        <EntitySet Name="Sites" EntityType="Playground.core.Models.Site">
+          <NavigationPropertyBinding Path="Company" Target="Companies" />
+        </EntitySet>
+      </EntityContainer>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

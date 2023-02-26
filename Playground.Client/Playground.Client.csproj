@@ -12,7 +12,35 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Rest.ClientRuntime" Version="2.3.24" />
+    <None Remove="Connected Services\Playground\PlaygroundCsdl.xml" />
+    <None Remove="OpenAPIs\swagger.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Connected Services\Playground\PlaygroundCsdl.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <OpenApiReference Include="OpenAPIs\swagger.json" CodeGenerator="NSwagCSharp" Namespace="Playground.Client.Http" ClassName="PlaygroundClient" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.ApiDescription.Client" Version="3.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.OData.Client" Version="7.14.1" />
+    <PackageReference Include="Microsoft.OData.Core" Version="7.14.1" />
+    <PackageReference Include="Microsoft.OData.Edm" Version="7.14.1" />
+    <PackageReference Include="Microsoft.OData.Extensions.Client" Version="1.0.6" />
+    <PackageReference Include="Microsoft.Spatial" Version="7.14.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="NSwag.ApiDescription.Client" Version="13.0.5">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
+    <PackageReference Include="System.Text.Json" Version="7.0.2" />
   </ItemGroup>
   
 </Project>

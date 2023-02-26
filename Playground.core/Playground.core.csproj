@@ -10,6 +10,7 @@
     <RuntimeIdentifier>win7-x64</RuntimeIdentifier>
     <TypeScriptCompileBlocked>True</TypeScriptCompileBlocked>
     <TypeScriptToolsVersion>2.3</TypeScriptToolsVersion>
+      <PreserveCompilationContext>true</PreserveCompilationContext>
     <UserSecretsId>3f931173-a60f-451d-aebf-c651f30450d1</UserSecretsId>
   </PropertyGroup>
   

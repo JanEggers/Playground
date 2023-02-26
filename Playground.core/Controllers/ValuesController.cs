@@ -1,6 +1,6 @@
 ﻿namespace Playground.core.Controllers;
 
-[Authorize]
+// [Authorize]
 [Route("api/[controller]")]
 public class ValuesController : Controller
 {
