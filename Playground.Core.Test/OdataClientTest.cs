@@ -31,7 +31,9 @@ public class OdataClientTest : IClassFixture<WebApplicationFactory<Program>>
 
         var ctx = factory.CreateClient<Default.Container>(new Uri(client.BaseAddress, "/odata"), "Playground");
 
-        var odataCompaniesExecution = await ctx.Companies.Where(c => c.Name == "C2").ExecuteAsync<Models.Company>();
+        var query = ctx.Companies.Expand(p => p.Sites).Where(c => c.Name == "Hallo");
+
+        var odataCompaniesExecution = await query.ExecuteAsync<Models.Company>();
         var odataCompanies = odataCompaniesExecution.ToList();
     }
 }
