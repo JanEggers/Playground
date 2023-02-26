@@ -18,3 +18,4 @@ Playground.core/Tracing/
 *-lock.json
 /.vscode
 **/Tracing
+*.log
