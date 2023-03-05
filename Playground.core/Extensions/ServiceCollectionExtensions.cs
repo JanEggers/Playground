@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.OData;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-
+using Playground.core.GraphQL;
 
 namespace Playground.core.Extensions;
 
@@ -98,6 +98,14 @@ public static class ServiceCollectionExtensions
             options.OperationFilter<OdataOperationIdFilter>();
             options.DocumentFilter<OdataDocumentFilter>();
         });
+
+        services
+            .AddGraphQLServer()
+            .RegisterDbContext<PlaygroundContext>()
+            .AddProjections()
+            .AddFiltering()
+            .AddSorting()
+            .AddQueryType<Query>();
 
         services.AddSignalR();
         return services;

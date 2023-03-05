@@ -40,6 +40,9 @@ app.UseRouting();
 
 app.UseAuthorization();
 
+
+app.MapGraphQL();
+
 app.MapControllers();
 app.MapHub<UpdateHub>("/updates");
 
