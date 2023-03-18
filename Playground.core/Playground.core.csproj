@@ -21,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="GraphQL.Query.Builder" Version="2.0.1" />
     <PackageReference Include="HotChocolate.AspNetCore" Version="13.0.5" />
     <PackageReference Include="HotChocolate.Data.EntityFramework" Version="13.0.5" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.14" />
