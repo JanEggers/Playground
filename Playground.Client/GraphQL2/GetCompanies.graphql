@@ -1,0 +1,8 @@
+﻿query GetCompanies {
+  companies(where: {name: { contains: "Hallo" }}, order: { name: DESC }) {
+    name,
+    sites {
+      name
+    }
+  }
+} 

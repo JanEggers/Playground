@@ -1,0 +1,84 @@
+﻿schema {
+  query: Query
+}
+
+type Query {
+  companies(where: CompanyFilterInput order: [CompanySortInput!]): [Company]
+}
+
+input CompanyFilterInput {
+  and: [CompanyFilterInput!]
+  or: [CompanyFilterInput!]
+  id: IntOperationFilterInput
+  name: StringOperationFilterInput
+  sites: ListFilterInputTypeOfSiteFilterInput
+}
+
+input CompanySortInput {
+  id: SortEnumType
+  name: SortEnumType
+}
+
+input IntOperationFilterInput {
+  eq: Int
+  neq: Int
+  in: [Int]
+  nin: [Int]
+  gt: Int
+  ngt: Int
+  gte: Int
+  ngte: Int
+  lt: Int
+  nlt: Int
+  lte: Int
+  nlte: Int
+}
+
+input StringOperationFilterInput {
+  and: [StringOperationFilterInput!]
+  or: [StringOperationFilterInput!]
+  eq: String
+  neq: String
+  contains: String
+  ncontains: String
+  in: [String]
+  nin: [String]
+  startsWith: String
+  nstartsWith: String
+  endsWith: String
+  nendsWith: String
+}
+
+input ListFilterInputTypeOfSiteFilterInput {
+  all: SiteFilterInput
+  none: SiteFilterInput
+  some: SiteFilterInput
+  any: Boolean
+}
+
+enum SortEnumType {
+  ASC
+  DESC
+}
+
+input SiteFilterInput {
+  and: [SiteFilterInput!]
+  or: [SiteFilterInput!]
+  id: IntOperationFilterInput
+  name: StringOperationFilterInput
+  companyId: IntOperationFilterInput
+  company: CompanyFilterInput
+}
+
+type Company {
+  id: Int!
+  name: String
+  sites: [Site]
+}
+
+type Site {
+  id: Int!
+  name: String
+  companyId: Int!
+  company: Company
+}

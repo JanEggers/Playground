@@ -1,6 +1,8 @@
 ﻿using JSNLog;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.OData;
 using Microsoft.AspNetCore.OData.Formatter;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,6 +10,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Net.Http.Headers;
 using Playground.core.Hubs;
 using Serilog;
+using System.Net;
 using static OpenIddict.Abstractions.OpenIddictConstants.Permissions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,6 +24,7 @@ builder.Logging.AddSerilog(loggerConfig.CreateLogger(), true);
 
 builder.Services.AddPlayground(builder.Configuration);
 
+
 var app = builder.Build();
 
 var jsnlogConfiguration = new JsnlogConfiguration();
@@ -31,7 +35,21 @@ if (builder.Environment.IsDevelopment())
     app.UseDeveloperExceptionPage();
 }
 
-app.UseAuthentication();
+app.UseExceptionHandler(appError =>
+{
+    appError.Run(async context =>
+    {
+        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+        context.Response.ContentType = "application/json";
+        var contextFeature = context.Features.Get<IExceptionHandlerFeature>();
+        if (contextFeature != null)
+        {
+            await context.Response.WriteAsync(contextFeature.Error.ToString());
+        }
+    });
+});
+
+//app.UseAuthentication();
 
 app.UseStaticFiles();
 app.UseDefaultFiles();

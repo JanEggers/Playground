@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <None Remove="Connected Services\Playground\PlaygroundCsdl.xml" />
+    <None Remove="GraphQL2\GetCompanies.graphql" />
     <None Remove="OpenAPIs\swagger.json" />
   </ItemGroup>
 
@@ -41,6 +42,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="StrawberryShake.Server" Version="13.0.5" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
     <PackageReference Include="System.Text.Json" Version="7.0.2" />
   </ItemGroup>
