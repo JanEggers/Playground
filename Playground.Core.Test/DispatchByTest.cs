@@ -64,6 +64,8 @@ public class DispatchByTest
         private readonly Func<TSource, TKey> _keyselector;
         private ImmutableList<IObserver<TSource>> _observers = ImmutableList<IObserver<TSource>>.Empty;
         private ImmutableDictionary<TKey, Channel<TSource>> _buffers = ImmutableDictionary<TKey, Channel<TSource>>.Empty;
+        private int _enqueued;
+        private int _dequeued;
 
         public FancyScheduler(IObservable<TSource> source, Func<TSource, TKey> keyselector)
         {
@@ -98,7 +100,12 @@ public class DispatchByTest
                 Task.Factory.StartNew(() => RunBuffer(buffer.Reader), TaskCreationOptions.LongRunning);
             }
 
-            buffer.Writer.TryWrite(value);           
+            if (!buffer.Writer.TryWrite(value)) 
+            {
+                buffer.Writer.WriteAsync(value).AsTask().GetAwaiter().GetResult();
+            }  
+            
+            Interlocked.Increment(ref _enqueued);
         }
 
         private async Task RunBuffer(ChannelReader<TSource> reader) 
@@ -113,6 +120,7 @@ public class DispatchByTest
                     {
                         observer.OnNext(value);
                     }
+                    Interlocked.Increment(ref _dequeued);
                 }
             } while (!reader.Completion.IsCompleted);
         }
@@ -137,18 +145,21 @@ public class DispatchByTest
     [Fact]
     public async Task TestSchedule()
     {
-        var scheduled = NumberGenerator.Generate(1, 5)
-        .ScheduleBy(x => x % 2 == 0);
-        //.Schedule();
+        var take = 100000; 
+        var scheduled = NumberGenerator.Generate(1, 1000)
+        // .ScheduleBy(x => x % 2 == 0);
+        .Schedule();
 
-        var x = await scheduled
+        var items = await scheduled
         .Select(i => new 
         {
             Value = i,
             Thread = Thread.CurrentThread.ManagedThreadId
         })
-        .Take(10)
+        .Take(take)
         .ToList();
+
+        Assert.Equal(take, items.Count);
 
         await Task.Delay(1000);
 
