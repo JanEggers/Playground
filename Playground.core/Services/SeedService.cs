@@ -43,7 +43,7 @@ public class SeedService
             });
         }
 
-        var missing = 1000 - m_context.Companies.Count();
+        var missing = 100000 - m_context.Companies.Count();
 
         for (int i = 0; i < missing; i++)
         {
