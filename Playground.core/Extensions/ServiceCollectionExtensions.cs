@@ -15,7 +15,8 @@ public static class ServiceCollectionExtensions
         services.AddTransient<PlaygroundModelBuilder>();
 
         services.AddDbContext<PlaygroundContext>(o => {
-            o.UseSqlServer(configuration.GetConnectionString("PlaygroundContext"));
+            o.UseSqlServer(configuration.GetConnectionString("PlaygroundContext"))
+            .EnableThreadSafetyChecks(false);
         });
 
         services.AddControllers()

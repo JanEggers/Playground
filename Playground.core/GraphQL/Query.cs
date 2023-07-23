@@ -6,7 +6,7 @@ namespace Playground.core.GraphQL;
 
 public class Query
 {
-    //[UseOffsetPaging(MaxPageSize =10000)]
+    [UseOffsetPaging(MaxPageSize =10000)]
     [UseProjection]
     [UseFiltering]
     [UseSorting]

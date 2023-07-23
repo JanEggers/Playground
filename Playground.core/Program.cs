@@ -1,13 +1,19 @@
-﻿using JSNLog;
+﻿using Azure;
+using JSNLog;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.OData;
 using Microsoft.AspNetCore.OData.Formatter;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Net.Http.Headers;
 using Playground.core.Hubs;
+using Polly;
 using Serilog;
+using System.Buffers;
+using System.Text;
 using static OpenIddict.Abstractions.OpenIddictConstants.Permissions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -37,9 +43,26 @@ app.UseStaticFiles();
 app.UseDefaultFiles();
 
 app.UseRouting();
-
 app.UseAuthorization();
 
+//app.MapGet("/CompaniesRest", async (HttpContext httpContext, PlaygroundContext context) => {
+//    var companies = context.Companies.AsNoTracking()
+//            .Select(c => $"{{\"{nameof(c.Id)}\": {c.Id}, \"{nameof(c.Name)}\": \"{c.Name}\"  }}")
+//            .ToList();
+
+//    var writer = httpContext.Response.BodyWriter;
+//    var encoding = Encoding.UTF8;
+
+//    writer.Write(encoding.GetBytes("["));
+
+//    foreach (var company in companies)
+//    {
+//        encoding.GetBytes(company, writer);
+//    }
+//    writer.Write(encoding.GetBytes("]"));
+
+//    await writer.FlushAsync();
+//});
 
 app.MapGraphQL();
 
