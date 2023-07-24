@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Playground.core.Models;
 using System.Buffers;
+using System.Linq;
 using System.Text;
 
 namespace Playground.core.Controllers;
@@ -21,11 +22,19 @@ public class CompaniesRestController : ControllerBase
     [HttpGet]
     public async Task GetAll([FromQuery] int take)
     {
-        var companies = _context.Companies.Take(take).AsNoTracking()
-        .Select(c => "{\"Id\":" + c.Id +",\"Name\":\""+c.Name+"\"}");
+        var companies = _context.Companies
+        .Take(take)
+        .AsNoTracking()
+        .Select(c => "{\"Id\":" + c.Id + ",\"Name\":\"" + c.Name + "\"}")
+        ;
+        //.GroupBy(x => x.Id % 4)
+        //.Select(g => string.Join(",", g.Select(c => "{\"Id\":" + c.Id + ",\"Name\":\"" + c.Name + "\"}")));
 
         var writer = Response.BodyWriter;
         var encoding = Encoding.UTF8;
+        //encoding.GetBytes(companies, writer);
+
+
 
         encoding.GetBytes("[", writer);
         var sep = string.Empty;

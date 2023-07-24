@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <AssemblyName>Playground.Core.Test</AssemblyName>
     <PackageId>Playground.Core.Test</PackageId>
     <RuntimeIdentifier>win7-x64</RuntimeIdentifier>
