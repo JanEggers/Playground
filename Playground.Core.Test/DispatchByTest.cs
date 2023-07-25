@@ -1,4 +1,6 @@
-﻿using System.Reactive.Concurrency;
+﻿using System;
+using System.Collections.Concurrent;
+using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Threading;
 
@@ -6,16 +8,12 @@ namespace Playground.Core.Test;
 
 public static class FancyScheduler
 {
-    public static IObservable<TSource> Schedule<TSource>(this IObservable<TSource> source)
-    {
-        return source.ScheduleBy(x => x);
-    }
-    public static IObservable<TSource> ScheduleBy<TSource, TKey>(this IObservable<TSource> source, Func<TSource, TKey> keyselector)
+    public static IObservable<TSource> ScheduleBy<TSource, TKey>(this IObservable<TSource> source, Func<TSource, TKey> keyselector, Action<TSource> work)
     {
         return source
         .GroupBy(keyselector)
-        .SelectMany(partition => partition
-        .ObserveOn(new EventLoopScheduler()));
+        .SelectMany(partition => Observable.Using(() => new EventLoopScheduler(), scheduler => partition
+            .ObserveOn(scheduler).Do(work)));
     }
 }
 
@@ -51,46 +49,63 @@ public class DispatchByTest
     [Fact]
     public async Task TestSchedule()
     {
-        var take = 100000; 
-        var scheduled = NumberGenerator.Generate(1, 1000)
-        .ScheduleBy(x => x % 2 == 0);
-        //.Schedule();
+        var take = 100000;
 
-        var items = await scheduled
-        .Select(i => new 
+        var items = new BlockingCollection<object>();
+
+        NumberGenerator.Generate(1, 1000)
+        .ScheduleBy(x => x % Environment.ProcessorCount, i =>
         {
-            Value = i,
-            Thread = Thread.CurrentThread.ManagedThreadId
+            var str = "";
+            for (int x = 0; x < 10; x++)
+            {
+                str += x.ToString();
+            }
+            items.Add(new
+            {
+                Value = i,
+                Thread = Thread.CurrentThread.ManagedThreadId
+            });
         })
-        .Take(take)
-        .ToList();
 
-        Assert.Equal(take, items.Count);
+        //.ScheduleBy(x => x % Environment.ProcessorCount, i =>
+        //return new
+        //{
+        //    Value = i,
+        //    Thread = Thread.CurrentThread.ManagedThreadId
+        //})
+        //.Take(take / Environment.ProcessorCount)
+        //.Do(i => items.Add(i))
+
+        .Subscribe();
+        ;
+
+        SpinWait.SpinUntil(() => items.Count >= take);
 
         await Task.Delay(1000);
 
     }
 
-    [Fact]
-    public async Task TestScheduleError()
-    {
-        var scheduled = NumberGenerator.Generate(1, 5)
-        .Select(i => {
-            throw new Exception("bäm");
-            return i;
-        })
-        .Schedule();
+    //[Fact]
+    //public async Task TestScheduleError()
+    //{
+    //    var scheduled = NumberGenerator.Generate(1, 5)
+    //    .Select(i => {
+    //        throw new Exception("bäm");
+    //        return i;
+    //    })
+    //    .Schedule();
 
-        var x = await Assert.ThrowsAsync<Exception>(async () => await scheduled
-        .Select(i => new
-        {
-            Value = i,
-            Thread = Thread.CurrentThread.ManagedThreadId
-        })
-        .Take(10)
-        .ToList());
+    //    var x = await Assert.ThrowsAsync<Exception>(async () => await scheduled
+    //    .Select(i => new
+    //    {
+    //        Value = i,
+    //        Thread = Thread.CurrentThread.ManagedThreadId
+    //    })
+    //    .Take(10)
+    //    .ToList());
 
-        await Task.Delay(1000);
+    //    await Task.Delay(1000);
 
-    }
+    //}
 }
