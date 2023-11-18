@@ -50,7 +50,7 @@ public class CompaniesRestController : ControllerBase
     }
 
     [HttpGet("conventional")]
-    public async Task<IEnumerable<Company>> GetAllConventional([FromQuery] int take)
+    public IEnumerable<Company> GetAllConventional([FromQuery] int take)
     {
         return _context.Companies.Take(take).AsNoTracking();
     }

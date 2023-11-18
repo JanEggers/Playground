@@ -2,12 +2,11 @@
 
   <PropertyGroup>
     <AssemblyTitle>Playground</AssemblyTitle>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <AssemblyName>Playground.core</AssemblyName>
     <OutputType>Exe</OutputType>
     <PackageId>Playground.core</PackageId>
-    <RuntimeIdentifier>win7-x64</RuntimeIdentifier>
     <TypeScriptCompileBlocked>True</TypeScriptCompileBlocked>
     <TypeScriptToolsVersion>2.3</TypeScriptToolsVersion>
       <PreserveCompilationContext>true</PreserveCompilationContext>
@@ -21,28 +20,28 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="HotChocolate.AspNetCore" Version="13.3.3" />
-    <PackageReference Include="HotChocolate.Data.EntityFramework" Version="13.3.3" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="7.0.9" />
-    <PackageReference Include="Microsoft.AspNetCore.OData" Version="8.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="7.0.9" />
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.9">
+    <PackageReference Include="HotChocolate.AspNetCore" Version="13.7.0" />
+    <PackageReference Include="HotChocolate.Data.EntityFramework" Version="13.7.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.OData" Version="8.2.3" />
+    <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.9" />
-    <PackageReference Include="OpenIddict" Version="4.6.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
+    <PackageReference Include="OpenIddict" Version="4.10.0" />
     <PackageReference Include="AutoMapper" Version="12.0.1" />
-    <PackageReference Include="JSNLog" Version="3.0.1" />
-    <PackageReference Include="OpenIddict.AspNetCore" Version="4.6.0" />
-    <PackageReference Include="OpenIddict.EntityFrameworkCore" Version="4.6.0" />
-    <PackageReference Include="Serilog.Extensions.Logging" Version="7.0.0" />
-    <PackageReference Include="Serilog.Settings.Configuration" Version="7.0.0" />
-    <PackageReference Include="Serilog.Sinks.Console" Version="4.1.0" />
+    <PackageReference Include="JSNLog" Version="3.0.2" />
+    <PackageReference Include="OpenIddict.AspNetCore" Version="4.10.0" />
+    <PackageReference Include="OpenIddict.EntityFrameworkCore" Version="4.10.0" />
+    <PackageReference Include="Serilog.Extensions.Logging" Version="8.0.0" />
+    <PackageReference Include="Serilog.Settings.Configuration" Version="8.0.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="5.0.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
-    <PackageReference Include="System.Collections.Immutable" Version="7.0.0" />
+    <PackageReference Include="System.Collections.Immutable" Version="8.0.0" />
     <PackageReference Include="System.Reactive" Version="6.0.0" />
   </ItemGroup>
 

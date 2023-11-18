@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,23 +25,23 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="GraphQL.Client" Version="5.1.1" />
-    <PackageReference Include="GraphQL.Client.Serializer.Newtonsoft" Version="5.1.1" />
-    <PackageReference Include="Microsoft.Extensions.ApiDescription.Client" Version="3.0.0">
+    <PackageReference Include="GraphQL.Client" Version="6.0.1" />
+    <PackageReference Include="GraphQL.Client.Serializer.Newtonsoft" Version="6.0.1" />
+    <PackageReference Include="Microsoft.Extensions.ApiDescription.Client" Version="8.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.OData.Client" Version="7.14.1" />
-    <PackageReference Include="Microsoft.OData.Core" Version="7.14.1" />
-    <PackageReference Include="Microsoft.OData.Edm" Version="7.14.1" />
+    <PackageReference Include="Microsoft.OData.Client" Version="7.18.0" />
+    <PackageReference Include="Microsoft.OData.Core" Version="7.18.0" />
+    <PackageReference Include="Microsoft.OData.Edm" Version="7.18.0" />
     <PackageReference Include="Microsoft.OData.Extensions.Client" Version="1.0.6" />
-    <PackageReference Include="Microsoft.Spatial" Version="7.14.1" />
-    <PackageReference Include="NSwag.ApiDescription.Client" Version="13.0.5">
+    <PackageReference Include="Microsoft.Spatial" Version="7.18.0" />
+    <PackageReference Include="NSwag.ApiDescription.Client" Version="13.20.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
-    <PackageReference Include="System.Text.Json" Version="7.0.2" />
+    <PackageReference Include="System.Text.Json" Version="8.0.0" />
   </ItemGroup>
   
 </Project>

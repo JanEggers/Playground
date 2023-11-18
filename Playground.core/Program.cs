@@ -1,20 +1,10 @@
-﻿using Azure;
-using JSNLog;
+﻿using JSNLog;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.OData;
-using Microsoft.AspNetCore.OData.Formatter;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Net.Http.Headers;
 using Playground.core.Hubs;
-using Polly;
 using Serilog;
-using System.Buffers;
-using System.Text;
-using static OpenIddict.Abstractions.OpenIddictConstants.Permissions;
 
 var builder = WebApplication.CreateBuilder(args);
 
