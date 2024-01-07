@@ -56,6 +56,23 @@ public class SeedService
         
         await m_context.SaveChangesAsync();
 
+        //var memCompanies = m_context.CompaniesMem.ToDictionary(p => p.Name);
+
+        //foreach (var company2 in m_context.Companies)
+        //{
+        //    if (!memCompanies.TryGetValue(company2.Name, out _))
+        //    {
+        //        m_context.CompaniesMem.Add(new CompanyMem()
+        //        {
+        //            Name = company2.Name,
+        //        });
+        //    }
+        //}
+
+
+        //await m_context.SaveChangesAsync();
+
+
         //foreach (var companyx in m_context.Companies)
         //{
         //    var missing = 1000 - company.Sites.Count;

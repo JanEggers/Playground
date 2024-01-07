@@ -17,8 +17,7 @@ public class OdataClientTest : IClassFixture<WebApplicationFactory<Program>>
     public async Task TestGetCompanies()
     {
         var client = _factory.CreateClient();
-
-        var swaggerClient = new PlaygroundClient(client.BaseAddress.OriginalString, client);
+        var swaggerClient = new PlaygroundClient(client);
         var companies = await swaggerClient.GetCompaniesAsync();
         Assert.NotEmpty(companies.Value);
 

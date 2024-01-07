@@ -21,7 +21,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <OpenApiReference Include="OpenAPIs\swagger.json" CodeGenerator="NSwagCSharp" Namespace="Playground.Client.Http" ClassName="PlaygroundClient" />
+      <OpenApiReference Include="OpenAPIs\swagger.json" CodeGenerator="NSwagCSharp" Namespace="Playground.Client.Http" ClassName="PlaygroundClient" >
+          <Options>/UseBaseUrl:false /GenerateClientInterfaces:true</Options>
+      </OpenApiReference>
   </ItemGroup>
 
   <ItemGroup>

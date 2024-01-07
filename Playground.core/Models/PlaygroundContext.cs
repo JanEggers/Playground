@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
 namespace Playground.core.Models
@@ -34,6 +35,10 @@ namespace Playground.core.Models
             builder.Entity<Company>()
                 .ToTable( "Companies" );
 
+
+            //builder.Entity<CompanyMem>()
+            //    .ToTable("CompaniesInMemory", p => p.IsMemoryOptimized());
+
             builder.Entity<CompanySub>()
                 .HasBaseType<Company>();
 
@@ -44,9 +49,20 @@ namespace Playground.core.Models
         }
 
         public DbSet<Company> Companies { get; set; }
+        //public DbSet<CompanyMem> CompaniesMem { get; set; }
 
         public DbSet<Site> Sites { get; set; }
 
         public IQueryable<Translation> Translations { get; set; }
     }
+
+    //public class CompanyMem
+    //{
+    //    [Key]
+    //    public int Id { get; set; }
+
+    //    public string Name { get; set; }
+
+    //    public virtual ICollection<Site> Sites { get; set; }
+    //}
 }

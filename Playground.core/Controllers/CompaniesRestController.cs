@@ -54,4 +54,10 @@ public class CompaniesRestController : ControllerBase
     {
         return _context.Companies.Take(take).AsNoTracking();
     }
+
+    //[HttpGet("mem")]
+    //public IEnumerable<CompanyMem> GetAllMem([FromQuery] int take)
+    //{
+    //    return _context.CompaniesMem.Take(take).AsNoTracking();
+    //}
 }

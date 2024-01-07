@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Playground.Client
 {
-    class Program
+    public class Program
     {
         static void Main(string[] args)
         {
@@ -23,8 +23,8 @@ namespace Playground.Client
                 BaseAddress = new Uri("http://localhost:5000")
             };
 
-            var api = new PlaygroundClient("http://localhost:5000", httpClient);
-            var api2 = new PlaygroundClient("http://localhost:5000", httpClient);
+            var api = new PlaygroundClient( httpClient);
+            var api2 = new PlaygroundClient(httpClient);
 
 
             while (true)
