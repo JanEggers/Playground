@@ -25,6 +25,10 @@ public static class ServiceCollectionExtensions
         });
 
         services.AddControllers()
+            .AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.TypeInfoResolver = JsonSerializerSourceGenerator.Default;
+            })
             .AddOData((odata, services) =>
             {
                 odata
